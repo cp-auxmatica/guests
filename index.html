@@ -20,6 +20,10 @@
         .form-section {
             transition: all 0.3s ease-in-out;
         }
+        .task-complete {
+            text-decoration: line-through;
+            color: #6b7280; /* gray-500 */
+        }
     </style>
 </head>
 <body class="bg-slate-50 text-slate-800 antialiased">
@@ -81,15 +85,9 @@
 
         <main class="p-4 md:p-8 flex-grow max-w-7xl mx-auto w-full">
             <!-- Dashboard Section -->
-            <section id="dashboard" class="space-y-8">
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">Accommodation Status</h2>
-                    <div id="dashboard-overview" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-                </div>
-                <div>
-                    <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">Guest Status</h2>
-                    <div id="dashboard-guest-status" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-                </div>
+            <section id="dashboard">
+                <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">Guest Assignments</h2>
+                <ul id="dashboard-guest-list" class="space-y-3"></ul>
             </section>
 
             <!-- Houses Section -->
@@ -187,10 +185,10 @@
 
             <!-- Assignments Section -->
             <section id="assignments" class="hidden">
-                <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">Assign Guests</h2>
+                <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">Create Assignment</h2>
                 <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
-                    <form id="assignment-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <select name="houseId" required class="p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <form id="assignment-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <select name="houseId" required class="p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 col-span-1 md:col-span-2">
                             <option value="" disabled selected>1. Select a House</option>
                         </select>
                         <select name="roomId" required disabled class="p-3 border border-slate-300 rounded-lg bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -199,18 +197,14 @@
                         <select name="guestId" required class="p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <option value="" disabled selected>3. Select a Guest/Family</option>
                         </select>
-                        <input type="date" name="startDate" required class="p-3 border border-slate-300 rounded-lg">
-                        <input type="date" name="endDate" required class="p-3 border border-slate-300 rounded-lg">
-                        <button type="submit" class="col-span-1 md:col-span-2 lg:col-span-3 bg-indigo-600 text-white font-bold p-3 rounded-lg hover:bg-indigo-700 transition-colors duration-200 shadow-sm">Create Assignment</button>
+                        <button type="submit" class="col-span-1 md:col-span-2 bg-indigo-600 text-white font-bold p-3 rounded-lg hover:bg-indigo-700 transition-colors duration-200 shadow-sm">Create Assignment</button>
                     </form>
                 </div>
-                <h3 class="text-xl font-semibold mt-8 mb-4">Guest Assignment Overview</h3>
-                <ul id="assignment-list" class="space-y-3"></ul>
             </section>
 
             <!-- Tasks Section -->
             <section id="tasks" class="hidden">
-                <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">All Preparation Tasks</h2>
+                <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">Preparation Tasks</h2>
                 <div class="flex flex-col md:flex-row items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border border-slate-200">
                     <span class="font-medium flex-shrink-0">Filter by:</span>
                     <select id="task-filter-house" class="w-full md:w-auto p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -265,7 +259,6 @@
 
             // --- Initialization ---
             async init() {
-                // Use the hardcoded Firebase config if the environment-provided one is not available.
                 const finalFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
                 
                 const firebaseApp = initializeApp(finalFirebaseConfig);
@@ -322,14 +315,10 @@
                         house: document.getElementById('house-list'),
                         room: document.getElementById('room-list'),
                         guest: document.getElementById('guest-list'),
-                        assignment: document.getElementById('assignment-list'),
+                        dashboardGuestList: document.getElementById('dashboard-guest-list'),
                         tasks: document.getElementById('tasks-list'),
                         prep: document.getElementById('prep-list'),
                         editPrep: document.getElementById('edit-prep-list'),
-                    },
-                    dashboard: {
-                        overview: document.getElementById('dashboard-overview'),
-                        guestStatus: document.getElementById('dashboard-guest-status'),
                     },
                     inputs: {
                         roomPrep: document.getElementById('room-prep-item'),
@@ -358,7 +347,6 @@
                 this.dom.selects.assignmentHouse.addEventListener('change', () => this.populateRoomSelect());
                 this.dom.deleteModal.cancelBtn.addEventListener('click', () => this.hideDeleteModal());
                 
-                // Event listeners for task filters
                 this.dom.selects.taskFilterHouse.addEventListener('change', () => {
                     this.populateTaskRoomFilter();
                     this.renderTasks();
@@ -387,52 +375,47 @@
                 this.renderHouses();
                 this.renderRooms();
                 this.renderGuests();
-                this.renderAssignments();
                 this.renderTasks();
                 this.populateSelects();
             },
 
             renderDashboard() {
-                const today = this.getLocalDateAsString();
-                
-                const overviewHtml = this.housesCache.map(house => {
-                    const roomsInHouse = this.roomsCache.filter(room => room.houseId === house.id);
-                    return `
-                        <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
-                            <h4 class="font-bold text-lg mb-3 text-slate-800">${house.name}</h4>
-                            <div class="space-y-3">
-                                ${roomsInHouse.length > 0 ? roomsInHouse.map(room => {
-                                    const assignment = this.assignmentsCache.find(a => a.roomId === room.id && a.startDate <= today && a.endDate >= today);
-                                    const statusColor = assignment ? 'border-red-500' : 'border-green-500';
-                                    const guestName = assignment ? this.guestsCache.find(g => g.id === assignment.guestId)?.name || 'Unknown' : '';
-                                    const details = assignment 
-                                        ? `<p class="text-sm text-red-700 font-semibold">Occupied: ${guestName}</p>`
-                                        : `<p class="text-sm text-green-700">Available</p>`;
-                                    return `
-                                        <div class="p-3 rounded-lg border-l-4 ${statusColor} bg-slate-50">
-                                            <h5 class="font-semibold text-slate-800">${room.name}</h5>
-                                            ${details}
-                                        </div>
-                                    `;
-                                }).join('') : '<p class="text-sm text-slate-500">No rooms added yet.</p>'}
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-                this.dom.dashboard.overview.innerHTML = overviewHtml || '<p class="text-slate-500">Add a house to get started.</p>';
+                 const sortedGuests = [...this.guestsCache].sort((a,b) => a.name.localeCompare(b.name));
 
-                const guestStatusHtml = this.guestsCache.map(guest => {
-                    const isAssigned = this.assignmentsCache.some(a => a.guestId === guest.id && a.startDate <= today && a.endDate >= today);
-                    const statusColor = isAssigned ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800';
-                    const statusText = isAssigned ? 'Assigned' : 'Awaiting';
-                    return `
-                        <div class="flex justify-between items-center p-3 bg-white rounded-lg shadow-sm border border-slate-200">
-                            <p class="font-medium text-slate-800">${guest.name} ${guest.family ? `<span class="text-xs text-slate-500">(${guest.family})</span>` : ''}</p>
-                            <span class="px-3 py-1 rounded-full text-xs font-bold ${statusColor}">${statusText}</span>
-                        </div>
-                    `;
+                this.dom.lists.dashboardGuestList.innerHTML = sortedGuests.map(guest => {
+                    const assignment = this.assignmentsCache.find(a => a.guestId === guest.id);
+                    
+                    if (assignment) {
+                        const room = this.roomsCache.find(r => r.id === assignment.roomId);
+                        const house = this.housesCache.find(h => h.id === assignment.houseId);
+                        const houseColor = house ? this.getHouseColor(house.id) : 'bg-slate-200';
+
+                        return `
+                        <li class="flex items-center p-4 bg-white rounded-lg shadow-sm border border-slate-200">
+                            <span class="w-4 h-10 rounded-full ${houseColor} mr-4"></span>
+                            <div class="flex-grow">
+                                <p class="font-bold text-slate-800">${guest.name}</p>
+                                <p class="text-sm text-slate-600">
+                                    Staying in <strong>${room?.name || 'N/A'}</strong> at <strong>${house?.name || 'N/A'}</strong>
+                                </p>
+                            </div>
+                            <div class="text-right">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Assigned</span>
+                                <button onclick="app.showDeleteModal('assignments', '${assignment.id}')" class="text-red-600 hover:text-red-800 font-medium text-xs mt-2 block ml-auto">Remove</button>
+                            </div>
+                        </li>`;
+                    } else {
+                        return `
+                        <li class="flex items-center p-4 bg-white rounded-lg shadow-sm border border-slate-200">
+                            <span class="w-4 h-10 rounded-full bg-slate-200 mr-4"></span>
+                            <div class="flex-grow">
+                                <p class="font-bold text-slate-800">${guest.name}</p>
+                                <p class="text-sm text-slate-500">Not yet assigned.</p>
+                            </div>
+                             <span class="px-3 py-1 rounded-full text-xs font-bold bg-yellow-100 text-yellow-800">Awaiting</span>
+                        </li>`;
+                    }
                 }).join('');
-                this.dom.dashboard.guestStatus.innerHTML = guestStatusHtml || '<p class="text-slate-500">No guests added yet.</p>';
             },
             
             renderHouses() {
@@ -463,7 +446,7 @@
                              <div class="flex-grow">
                                 <p class="text-lg font-medium text-slate-800">${room.name} <span class="text-sm font-normal text-slate-500">(${houseName})</span></p>
                                 <p class="text-sm text-slate-600">Capacity: ${room.capacity}, Bed: ${room.bedType}</p>
-                                ${(room.prepNeeded && room.prepNeeded.length > 0) ? `<div class="mt-2"><p class="text-xs font-semibold text-slate-700">Prep Needed:</p><ul class="list-disc list-inside text-xs text-slate-500 pl-2">${room.prepNeeded.map(task => `<li>${task}</li>`).join('')}</ul></div>` : ''}
+                                ${(room.prepNeeded && room.prepNeeded.length > 0) ? `<div class="mt-2"><p class="text-xs font-semibold text-slate-700">Prep Needed:</p><ul class="list-disc list-inside text-xs text-slate-500 pl-2">${room.prepNeeded.map(task => `<li class="${task.completed ? 'task-complete' : ''}">${task.text}</li>`).join('')}</ul></div>` : ''}
                             </div>
                             <div class="flex-shrink-0 ml-4">
                                 <button onclick="app.openEditForm('room', '${room.id}')" class="text-indigo-600 hover:text-indigo-800 font-medium mr-4">Edit</button>
@@ -486,55 +469,11 @@
                 `).join('');
             },
 
-            renderAssignments() {
-                const today = this.getLocalDateAsString();
-                const sortedGuests = [...this.guestsCache].sort((a,b) => a.name.localeCompare(b.name));
-
-                this.dom.lists.assignment.innerHTML = sortedGuests.map(guest => {
-                    const assignment = this.assignmentsCache.find(a => a.guestId === guest.id && a.endDate >= today);
-                    
-                    if (assignment) {
-                        const room = this.roomsCache.find(r => r.id === assignment.roomId);
-                        const house = this.housesCache.find(h => h.id === assignment.houseId);
-                        const houseColor = house ? this.getHouseColor(house.id) : 'bg-slate-200';
-                        const isCurrent = assignment.startDate <= today;
-
-                        return `
-                        <li class="flex items-center p-4 bg-white rounded-lg shadow-sm border border-slate-200">
-                            <span class="w-4 h-10 rounded-full ${houseColor} mr-4"></span>
-                            <div class="flex-grow">
-                                <p class="font-bold text-slate-800">${guest.name}</p>
-                                <p class="text-sm text-slate-600">
-                                    Staying in <strong>${room?.name || 'N/A'}</strong> at <strong>${house?.name || 'N/A'}</strong>
-                                </p>
-                                <p class="text-xs text-slate-500">${assignment.startDate} to ${assignment.endDate}</p>
-                            </div>
-                            <div class="text-right">
-                                <span class="px-3 py-1 rounded-full text-xs font-bold ${isCurrent ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
-                                    ${isCurrent ? 'Currently Assigned' : 'Upcoming'}
-                                </span>
-                                <button onclick="app.showDeleteModal('assignments', '${assignment.id}')" class="text-red-600 hover:text-red-800 font-medium text-xs mt-2 block ml-auto">Remove</button>
-                            </div>
-                        </li>`;
-                    } else {
-                        return `
-                        <li class="flex items-center p-4 bg-white rounded-lg shadow-sm border border-slate-200">
-                            <span class="w-4 h-10 rounded-full bg-slate-200 mr-4"></span>
-                            <div class="flex-grow">
-                                <p class="font-bold text-slate-800">${guest.name}</p>
-                                <p class="text-sm text-slate-500">No assignment scheduled.</p>
-                            </div>
-                        </li>`;
-                    }
-                }).join('');
-            },
-
             renderTasks() {
                 const selectedHouseId = this.dom.selects.taskFilterHouse.value;
                 const selectedRoomId = this.dom.selects.taskFilterRoom.value;
 
                 let filteredRooms = this.roomsCache;
-
                 if (selectedHouseId !== 'all') {
                     filteredRooms = filteredRooms.filter(room => room.houseId === selectedHouseId);
                 }
@@ -543,19 +482,28 @@
                 }
 
                 let allTasks = filteredRooms.flatMap(room => 
-                    (room.prepNeeded || []).map(task => ({
-                        task,
+                    (room.prepNeeded || []).map((task, index) => ({
+                        ...task,
                         roomName: room.name,
-                        houseName: this.housesCache.find(h => h.id === room.houseId)?.name || 'N/A'
+                        houseName: this.housesCache.find(h => h.id === room.houseId)?.name || 'N/A',
+                        roomId: room.id,
+                        taskIndex: index,
                     }))
                 );
 
                 allTasks.sort((a, b) => a.houseName.localeCompare(b.houseName) || a.roomName.localeCompare(b.roomName));
 
                 this.dom.lists.tasks.innerHTML = allTasks.length > 0 ? allTasks.map(task => `
-                    <li class="p-4 bg-white rounded-lg shadow-sm border border-slate-200">
-                        <p class="font-medium text-slate-800">${task.task}</p>
-                        <p class="text-sm text-slate-600">${task.houseName} - ${task.roomName}</p>
+                    <li class="flex justify-between items-center p-4 bg-white rounded-lg shadow-sm border border-slate-200">
+                        <div>
+                            <p class="font-medium text-slate-800 ${task.completed ? 'task-complete' : ''}">${task.text}</p>
+                            <p class="text-sm text-slate-600">${task.houseName} - ${task.roomName}</p>
+                        </div>
+                        <button onclick="app.toggleTaskStatus('${task.roomId}', ${task.taskIndex})" 
+                                class="px-3 py-1 rounded-md text-xs font-semibold transition-colors
+                                       ${task.completed ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-green-100 text-green-800 hover:bg-green-200'}">
+                            ${task.completed ? 'Mark To Do' : 'Mark Complete'}
+                        </button>
                     </li>
                 `).join('') : '<p class="text-slate-500">No tasks match the current filter.</p>';
             },
@@ -606,9 +554,14 @@
                 }
                 
                 for (const guest of assignees) {
+                    // Remove any existing assignment for this guest
+                    const existingAssignment = this.assignmentsCache.find(a => a.guestId === guest.id);
+                    if (existingAssignment) {
+                        await this.deleteData('assignments', existingAssignment.id);
+                    }
+                    // Add new assignment
                     await this.addData('assignments', {
                         houseId: data.houseId, roomId: data.roomId, guestId: guest.id,
-                        startDate: data.startDate, endDate: data.endDate
                     });
                 }
                 form.reset();
@@ -665,7 +618,7 @@
                 const list = (type === 'edit') ? this.editTempPrepList : this.tempPrepList;
                 const item = input.value.trim();
                 if (item) {
-                    list.push(item);
+                    list.push({ text: item, completed: false });
                     input.value = '';
                     this.renderPrepList(type);
                 }
@@ -682,7 +635,7 @@
                 const ul = (type === 'edit') ? this.dom.lists.editPrep : this.dom.lists.prep;
                 ul.innerHTML = list.map((item, index) => `
                     <li class="flex justify-between items-center p-2 bg-slate-200 rounded-md text-sm">
-                        <span>${item}</span>
+                        <span>${item.text}</span>
                         <button type="button" onclick="app.removePrepItem('${type}', ${index})" class="text-red-500 hover:text-red-700 font-bold ml-2">&times;</button>
                     </li>
                 `).join('');
@@ -738,17 +691,18 @@
 
             hideDeleteModal() { this.dom.deleteModal.container.classList.add('hidden'); },
             
-            getLocalDateAsString() {
-                const date = new Date();
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            },
-            
             getHouseColor(houseId) {
                 const houseIndex = this.housesCache.findIndex(h => h.id === houseId);
                 return this.houseColors[houseIndex % this.houseColors.length] || 'bg-slate-200';
+            },
+
+            async toggleTaskStatus(roomId, taskIndex) {
+                const room = this.roomsCache.find(r => r.id === roomId);
+                if (room && room.prepNeeded && room.prepNeeded[taskIndex]) {
+                    const updatedPrepNeeded = [...room.prepNeeded];
+                    updatedPrepNeeded[taskIndex].completed = !updatedPrepNeeded[taskIndex].completed;
+                    await this.updateData('rooms', roomId, { prepNeeded: updatedPrepNeeded });
+                }
             },
 
             async addData(collectionName, data) {
