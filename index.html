@@ -44,6 +44,15 @@
                 <input type="text" id="house-name" placeholder="House Name" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                 <button type="submit" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">Add House</button>
             </form>
+            <!-- Edit form for houses (initially hidden) -->
+            <form id="house-edit-form" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-gray-100 rounded-lg">
+                <input type="hidden" id="house-edit-id">
+                <input type="text" id="house-edit-name" placeholder="House Name" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <div class="flex gap-2 col-span-1 md:col-span-2">
+                    <button type="submit" class="flex-grow bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">Update House</button>
+                    <button type="button" onclick="window.hideEditForm('house')" class="bg-gray-400 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-500 transition-colors duration-200">Cancel</button>
+                </div>
+            </form>
             <ul id="house-list" class="space-y-3"></ul>
         </section>
 
@@ -74,6 +83,34 @@
                 </div>
                 <button type="submit" class="col-span-1 md:col-span-2 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">Add Room</button>
             </form>
+            <!-- Edit form for rooms (initially hidden) -->
+            <form id="room-edit-form" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-gray-100 rounded-lg">
+                <input type="hidden" id="room-edit-id">
+                <input type="hidden" id="room-edit-houseId">
+                <input type="text" id="room-edit-houseName" disabled class="p-2 border border-gray-300 rounded-md">
+                <input type="text" id="room-edit-name" placeholder="Room Name" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <input type="number" id="room-edit-capacity" placeholder="Capacity" required min="1" class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <select id="room-edit-bed-type" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="" disabled selected>Select Bed Type</option>
+                    <option value="king">King</option>
+                    <option value="queen">Queen</option>
+                    <option value="full">Full</option>
+                    <option value="twin">Twin</option>
+                    <option value="none">None</option>
+                </select>
+                <div class="col-span-1 md:col-span-2 bg-gray-200 rounded-lg p-4 -mt-4 mb-4">
+                    <p class="font-medium mb-2">Prep Needed:</p>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="room-edit-prep-item" placeholder="e.g., Buy new sheets" class="flex-grow p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <button type="button" onclick="window.addEditPrepItem()" class="bg-gray-400 text-white font-bold px-4 rounded-lg hover:bg-gray-500 transition-colors duration-200">Add</button>
+                    </div>
+                    <ul id="edit-prep-list" class="list-disc list-inside space-y-1"></ul>
+                </div>
+                <div class="flex gap-2 col-span-1 md:col-span-2">
+                    <button type="submit" class="flex-grow bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">Update Room</button>
+                    <button type="button" onclick="window.hideEditForm('room')" class="bg-gray-400 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-500 transition-colors duration-200">Cancel</button>
+                </div>
+            </form>
             <div class="flex items-center gap-4 mb-4">
                 <span class="font-medium">Sort by:</span>
                 <button onclick="window.sortRooms('houseName')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-1 px-3 rounded-md transition-colors duration-200">House</button>
@@ -89,6 +126,16 @@
                 <input type="text" id="guest-name" placeholder="Guest's Name" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                 <input type="text" id="guest-family" placeholder="Family Name (e.g., Smith Family)" class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                 <button type="submit" class="col-span-1 md:col-span-2 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">Add Guest</button>
+            </form>
+            <!-- Edit form for guests (initially hidden) -->
+            <form id="guest-edit-form" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 mb-6 p-4 bg-gray-100 rounded-lg">
+                <input type="hidden" id="guest-edit-id">
+                <input type="text" id="guest-edit-name" placeholder="Guest's Name" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <input type="text" id="guest-edit-family" placeholder="Family Name" class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <div class="flex gap-2 col-span-1 md:col-span-2">
+                    <button type="submit" class="flex-grow bg-blue-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors duration-200">Update Guest</button>
+                    <button type="button" onclick="window.hideEditForm('guest')" class="bg-gray-400 text-white font-bold py-2 px-4 rounded-lg hover:bg-gray-500 transition-colors duration-200">Cancel</button>
+                </div>
             </form>
             <ul id="guest-list" class="space-y-3"></ul>
         </section>
@@ -185,7 +232,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
         const firebaseConfig = {
@@ -235,12 +282,33 @@
         const modalAssignmentEndInput = document.getElementById('modal-assignment-end');
         const modalGuestInfo = document.getElementById('modal-guest-info');
 
+        // Edit form elements
+        const houseEditForm = document.getElementById('house-edit-form');
+        const houseEditId = document.getElementById('house-edit-id');
+        const houseEditName = document.getElementById('house-edit-name');
+        const roomEditForm = document.getElementById('room-edit-form');
+        const roomEditId = document.getElementById('room-edit-id');
+        const roomEditHouseId = document.getElementById('room-edit-houseId');
+        const roomEditHouseName = document.getElementById('room-edit-houseName');
+        const roomEditName = document.getElementById('room-edit-name');
+        const roomEditCapacity = document.getElementById('room-edit-capacity');
+        const roomEditBedType = document.getElementById('room-edit-bed-type');
+        const roomEditPrepItemInput = document.getElementById('room-edit-prep-item');
+        const editPrepListUl = document.getElementById('edit-prep-list');
+        const guestEditForm = document.getElementById('guest-edit-form');
+        const guestEditId = document.getElementById('guest-edit-id');
+        const guestEditName = document.getElementById('guest-edit-name');
+        const guestEditFamily = document.getElementById('guest-edit-family');
+
+
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
         let tempPrepList = []; 
+        let editTempPrepList = [];
         let roomsCache = [];
         let guestsCache = [];
         let assignmentsCache = [];
+        let housesCache = [];
 
         // --- Firebase Auth & Initialization ---
         async function signIn() {
@@ -269,6 +337,11 @@
             });
             document.getElementById(sectionId).classList.remove('hidden');
 
+            // Hide all edit forms when switching sections
+            houseEditForm.classList.add('hidden');
+            roomEditForm.classList.add('hidden');
+            guestEditForm.classList.add('hidden');
+
             if (sectionId === 'reports') {
                 renderReports();
                 showReportView('list-view');
@@ -279,6 +352,37 @@
             if (sectionId === 'tasks') {
                 renderTasks();
             }
+        };
+
+        window.showEditForm = function(formId, data) {
+            // Hide all creation forms and show the edit form
+            document.getElementById(formId).classList.remove('hidden');
+            
+            if (formId === 'house-edit-form') {
+                houseForm.classList.add('hidden');
+                houseEditId.value = data.id;
+                houseEditName.value = data.name;
+            } else if (formId === 'room-edit-form') {
+                roomForm.classList.add('hidden');
+                roomEditId.value = data.id;
+                roomEditHouseId.value = data.houseId;
+                roomEditHouseName.value = data.houseName;
+                roomEditName.value = data.name;
+                roomEditCapacity.value = data.capacity;
+                roomEditBedType.value = data.bedType;
+                editTempPrepList = data.prepNeeded || [];
+                renderEditPrepList();
+            } else if (formId === 'guest-edit-form') {
+                guestForm.classList.add('hidden');
+                guestEditId.value = data.id;
+                guestEditName.value = data.name;
+                guestEditFamily.value = data.family || '';
+            }
+        };
+
+        window.hideEditForm = function(entity) {
+            document.getElementById(`${entity}-edit-form`).classList.add('hidden');
+            document.getElementById(`${entity}-form`).classList.remove('hidden');
         };
 
         window.showReportView = function(viewId) {
@@ -314,6 +418,20 @@
             }
         }
 
+        async function updateData(collectionName, docId, data) {
+            if (!userId) {
+                console.error("User not authenticated.");
+                return;
+            }
+            try {
+                const docRef = doc(db, `artifacts/${appId}/public/data/${collectionName}`, docId);
+                await setDoc(docRef, data, { merge: true });
+                console.log(`Updated data in ${collectionName}.`);
+            } catch (error) {
+                console.error(`Error updating data in ${collectionName}:`, error);
+            }
+        }
+
         async function deleteData(collectionName, docId) {
             if (!userId) {
                 console.error("User not authenticated.");
@@ -336,12 +454,13 @@
 
         function setupRealtimeListeners() {
             onSnapshot(collection(db, `artifacts/${appId}/public/data/houses`), (snapshot) => {
+                housesCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 houseList.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const item = { id: doc.id, ...doc.data() };
+                housesCache.forEach(item => {
                     const li = document.createElement('li');
-                    li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center';
-                    li.innerHTML = `<span>🏡 ${item.name}</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="window.deleteDataWrapper('houses', '${item.id}')">Delete</button>`;
+                    li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center cursor-pointer';
+                    li.onclick = () => window.showEditForm('house-edit-form', item);
+                    li.innerHTML = `<span>🏡 ${item.name}</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="event.stopPropagation(); window.deleteDataWrapper('houses', '${item.id}')">Delete</button>`;
                     houseList.appendChild(li);
                 });
                 populateSelects();
@@ -359,8 +478,9 @@
                 guestsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 guestsCache.forEach(item => {
                     const li = document.createElement('li');
-                    li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center';
-                    li.innerHTML = `<span>👤 ${item.name} ${item.family ? `(Family: ${item.family})` : ''}</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="window.deleteDataWrapper('guests', '${item.id}')">Delete</button>`;
+                    li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center cursor-pointer';
+                    li.onclick = () => window.showEditForm('guest-edit-form', item);
+                    li.innerHTML = `<span>👤 ${item.name} ${item.family ? `(Family: ${item.family})` : ''}</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="event.stopPropagation(); window.deleteDataWrapper('guests', '${item.id}')">Delete</button>`;
                     guestList.appendChild(li);
                 });
                 populateSelects();
@@ -414,6 +534,35 @@
                 prepListUl.appendChild(li);
             });
         }
+
+        window.addEditPrepItem = function() {
+            const item = roomEditPrepItemInput.value.trim();
+            if (item) {
+                editTempPrepList.push(item);
+                roomEditPrepItemInput.value = '';
+                renderEditPrepList();
+            }
+        };
+
+        window.removeEditPrepItem = function(index) {
+            editTempPrepList.splice(index, 1);
+            renderEditPrepList();
+        };
+
+        function renderEditPrepList() {
+            editPrepListUl.innerHTML = '';
+            editTempPrepList.forEach((item, index) => {
+                const li = document.createElement('li');
+                li.className = 'flex justify-between items-center bg-gray-200 p-2 rounded-md';
+                li.innerHTML = `
+                    <span>${item}</span>
+                    <button type="button" onclick="window.removeEditPrepItem(${index})" class="text-red-500 hover:text-red-700 font-bold ml-2 transition-colors duration-200">
+                        &times;
+                    </button>
+                `;
+                editPrepListUl.appendChild(li);
+            });
+        }
         
         async function populateSelects() {
             if (!userId) return;
@@ -429,9 +578,7 @@
             modalAssignmentRoomSelect.disabled = true;
 
             try {
-                const housesSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/houses`));
-                housesSnap.forEach(doc => {
-                    const house = { id: doc.id, ...doc.data() };
+                housesCache.forEach(house => {
                     const option1 = new Option(house.name, house.id);
                     const option2 = new Option(house.name, house.id);
                     const option3 = new Option(house.name, house.id);
@@ -440,8 +587,6 @@
                     modalAssignmentHouseSelect.add(option3);
                 });
 
-                const guestsSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/guests`));
-                // Add guests and families to the dropdown
                 const uniqueFamilies = [...new Set(guestsCache.filter(g => g.family).map(g => g.family))];
                 uniqueFamilies.forEach(family => {
                     const familyOption = new Option(`Family: ${family}`, `family-${family}`);
@@ -464,23 +609,43 @@
             e.target.reset();
         });
 
+        houseEditForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = houseEditId.value;
+            const name = houseEditName.value;
+            updateData('houses', id, { name });
+            window.hideEditForm('house');
+        });
+
         roomForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const houseId = document.getElementById('room-house').value;
             const name = document.getElementById('room-name').value;
             const capacity = parseInt(document.getElementById('room-capacity').value);
             const bedType = document.getElementById('room-bed-type').value;
-
-            try {
-                const house = roomsCache.find(r => r.id === houseId) || { houseName: 'Unknown' };
-                addData('rooms', { houseId, houseName: house.houseName, name, capacity, bedType, prepNeeded: tempPrepList });
+            const house = housesCache.find(h => h.id === houseId);
+            
+            if (house) {
+                addData('rooms', { houseId, houseName: house.name, name, capacity, bedType, prepNeeded: tempPrepList });
                 e.target.reset();
                 tempPrepList = []; 
                 renderTempPrepList();
                 document.getElementById('room-house').value = "";
-            } catch (error) {
-                console.error("Error adding room:", error);
+            } else {
+                console.error("House not found for the selected ID.");
             }
+        });
+
+        roomEditForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = roomEditId.value;
+            const houseId = roomEditHouseId.value;
+            const houseName = roomEditHouseName.value;
+            const name = roomEditName.value;
+            const capacity = parseInt(roomEditCapacity.value);
+            const bedType = roomEditBedType.value;
+            updateData('rooms', id, { houseId, houseName, name, capacity, bedType, prepNeeded: editTempPrepList });
+            window.hideEditForm('room');
         });
 
         guestForm.addEventListener('submit', (e) => {
@@ -489,6 +654,15 @@
             const family = document.getElementById('guest-family').value;
             addData('guests', { name, family });
             e.target.reset();
+        });
+
+        guestEditForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = guestEditId.value;
+            const name = guestEditName.value;
+            const family = guestEditFamily.value;
+            updateData('guests', id, { name, family });
+            window.hideEditForm('guest');
         });
 
         assignmentForm.addEventListener('submit', async (e) => {
@@ -588,7 +762,8 @@
             
             sortedData.forEach(item => {
                 const li = document.createElement('li');
-                li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center';
+                li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center cursor-pointer';
+                li.onclick = () => window.showEditForm('room-edit-form', item);
                 let prepListHtml = '';
                 if (item.prepNeeded && item.prepNeeded.length > 0) {
                     prepListHtml = `
@@ -602,7 +777,7 @@
                             <span>
                                 🚪 <strong class="text-lg">${item.name}</strong> (${item.houseName})
                             </span>
-                            <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="window.deleteDataWrapper('rooms', '${item.id}')">Delete</button>
+                            <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="event.stopPropagation(); window.deleteDataWrapper('rooms', '${item.id}')">Delete</button>
                         </div>
                         <p class="text-sm mt-2 text-gray-600">Capacity: ${item.capacity}, Bed: ${item.bedType}</p>
                         ${prepListHtml}
@@ -659,7 +834,7 @@
             dashboardGuestsList.innerHTML = ''; 
 
             try {
-                const houses = (await getDocs(collection(db, `artifacts/${appId}/public/data/houses`))).docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const houses = housesCache;
                 const rooms = roomsCache;
                 const assignments = assignmentsCache;
                 const guests = guestsCache;
