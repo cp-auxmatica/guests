@@ -66,7 +66,6 @@
                         <button onclick="app.showSection('houses')" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Houses</button>
                         <button onclick="app.showSection('rooms')" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Rooms</button>
                         <button onclick="app.showSection('guests')" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Guests</button>
-                        <button onclick="app.showSection('assignments')" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Assign</button>
                         <button onclick="app.showSection('tasks')" class="px-3 py-2 rounded-md text-sm font-medium text-slate-300 hover:bg-slate-700 hover:text-white">Tasks</button>
                     </nav>
                 </div>
@@ -79,7 +78,6 @@
              <button onclick="app.showSection('houses')" class="px-3 py-2 rounded-md text-xs font-medium text-slate-200 hover:bg-slate-600">Houses</button>
              <button onclick="app.showSection('rooms')" class="px-3 py-2 rounded-md text-xs font-medium text-slate-200 hover:bg-slate-600">Rooms</button>
              <button onclick="app.showSection('guests')" class="px-3 py-2 rounded-md text-xs font-medium text-slate-200 hover:bg-slate-600">Guests</button>
-             <button onclick="app.showSection('assignments')" class="px-3 py-2 rounded-md text-xs font-medium text-slate-200 hover:bg-slate-600">Assign</button>
              <button onclick="app.showSection('tasks')" class="px-3 py-2 rounded-md text-xs font-medium text-slate-200 hover:bg-slate-600">Tasks</button>
         </nav>
 
@@ -165,8 +163,8 @@
 
             <!-- Guests Section -->
             <section id="guests" class="hidden">
-                <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">Manage Guests</h2>
-                <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 form-section">
+                <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">Manage & Assign Guests</h2>
+                <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200 form-section mb-6">
                     <form id="guest-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <input type="text" name="name" placeholder="Guest's Name" required class="p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
                         <input type="text" name="family" placeholder="Family Name (optional)" class="p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
@@ -183,38 +181,10 @@
                 <ul id="guest-list" class="space-y-3 mt-6"></ul>
             </section>
 
-            <!-- Assignments Section -->
-            <section id="assignments" class="hidden">
-                <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">Create Assignment</h2>
-                <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
-                    <form id="assignment-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <select name="houseId" required class="p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 col-span-1 md:col-span-2">
-                            <option value="" disabled selected>1. Select a House</option>
-                        </select>
-                        <select name="roomId" required disabled class="p-3 border border-slate-300 rounded-lg bg-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="" disabled selected>2. Select a Room</option>
-                        </select>
-                        <select name="guestId" required class="p-3 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="" disabled selected>3. Select a Guest/Family</option>
-                        </select>
-                        <button type="submit" class="col-span-1 md:col-span-2 bg-indigo-600 text-white font-bold p-3 rounded-lg hover:bg-indigo-700 transition-colors duration-200 shadow-sm">Create Assignment</button>
-                    </form>
-                </div>
-            </section>
-
             <!-- Tasks Section -->
             <section id="tasks" class="hidden">
                 <h2 class="text-2xl font-bold text-slate-700 border-b border-slate-200 pb-2 mb-6">Preparation Tasks</h2>
-                <div class="flex flex-col md:flex-row items-center gap-4 mb-6 p-4 bg-white rounded-lg shadow-sm border border-slate-200">
-                    <span class="font-medium flex-shrink-0">Filter by:</span>
-                    <select id="task-filter-house" class="w-full md:w-auto p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="all">All Houses</option>
-                    </select>
-                    <select id="task-filter-room" class="w-full md:w-auto p-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <option value="all">All Rooms</option>
-                    </select>
-                </div>
-                <ul id="tasks-list" class="space-y-3"></ul>
+                <div id="tasks-list" class="space-y-6"></div>
             </section>
         </main>
     </div>
@@ -226,8 +196,6 @@
         import { getFirestore, collection, addDoc, deleteDoc, doc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
-        // WARNING: It is not recommended to expose API keys in client-side code for public applications.
-        // This configuration is included as per user request for a specific environment.
         const firebaseConfig = {
             apiKey: "AIzaSyB_0fHWf0Hrpjcv4Hn0QY4L4JDMpc9RFVc",
             authDomain: "home-guests.firebaseapp.com",
@@ -245,26 +213,20 @@
             userId: null,
             appId: typeof __app_id !== 'undefined' ? __app_id : 'home-guests',
             
-            // Caches for holding Firestore data
             housesCache: [],
             roomsCache: [],
             guestsCache: [],
             assignmentsCache: [],
-
-            // Temporary lists for room prep tasks
             tempPrepList: [],
             editTempPrepList: [],
-            
             houseColors: ['bg-sky-200', 'bg-amber-200', 'bg-rose-200', 'bg-teal-200', 'bg-violet-200', 'bg-lime-200', 'bg-fuchsia-200', 'bg-orange-200'],
 
             // --- Initialization ---
             async init() {
                 const finalFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
-                
                 const firebaseApp = initializeApp(finalFirebaseConfig);
                 this.db = getFirestore(firebaseApp);
                 this.auth = getAuth(firebaseApp);
-
                 this.cacheDom();
                 this.bindEvents();
                 this.authenticateUser();
@@ -309,7 +271,6 @@
                         roomEdit: document.getElementById('room-edit-form'),
                         guest: document.getElementById('guest-form'),
                         guestEdit: document.getElementById('guest-edit-form'),
-                        assignment: document.getElementById('assignment-form'),
                     },
                     lists: {
                         house: document.getElementById('house-list'),
@@ -323,14 +284,6 @@
                     inputs: {
                         roomPrep: document.getElementById('room-prep-item'),
                         roomEditPrep: document.getElementById('room-edit-prep-item'),
-                    },
-                    selects: {
-                        roomHouse: document.querySelector('#room-form [name="houseId"]'),
-                        assignmentHouse: document.querySelector('#assignment-form [name="houseId"]'),
-                        assignmentRoom: document.querySelector('#assignment-form [name="roomId"]'),
-                        assignmentGuest: document.querySelector('#assignment-form [name="guestId"]'),
-                        taskFilterHouse: document.getElementById('task-filter-house'),
-                        taskFilterRoom: document.getElementById('task-filter-room'),
                     }
                 };
             },
@@ -343,15 +296,7 @@
                 this.dom.forms.roomEdit.addEventListener('submit', (e) => this.handleFormSubmit(e, 'rooms', true));
                 this.dom.forms.guest.addEventListener('submit', (e) => this.handleFormSubmit(e, 'guests'));
                 this.dom.forms.guestEdit.addEventListener('submit', (e) => this.handleFormSubmit(e, 'guests', true));
-                this.dom.forms.assignment.addEventListener('submit', (e) => this.handleAssignmentSubmit(e));
-                this.dom.selects.assignmentHouse.addEventListener('change', () => this.populateRoomSelect());
                 this.dom.deleteModal.cancelBtn.addEventListener('click', () => this.hideDeleteModal());
-                
-                this.dom.selects.taskFilterHouse.addEventListener('change', () => {
-                    this.populateTaskRoomFilter();
-                    this.renderTasks();
-                });
-                this.dom.selects.taskFilterRoom.addEventListener('change', () => this.renderTasks());
             },
             
             // --- Realtime Listeners ---
@@ -362,9 +307,7 @@
                     onSnapshot(collectionRef, (snapshot) => {
                         this[`${col}Cache`] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                         this.renderAll();
-                    }, (error) => {
-                        console.error(`Error listening to ${col}:`, error);
-                    });
+                    }, (error) => console.error(`Error listening to ${col}:`, error));
                 });
                 setTimeout(() => this.dom.loadingOverlay.classList.add('hidden'), 1500);
             },
@@ -376,33 +319,24 @@
                 this.renderRooms();
                 this.renderGuests();
                 this.renderTasks();
-                this.populateSelects();
             },
 
             renderDashboard() {
                  const sortedGuests = [...this.guestsCache].sort((a,b) => a.name.localeCompare(b.name));
-
                 this.dom.lists.dashboardGuestList.innerHTML = sortedGuests.map(guest => {
                     const assignment = this.assignmentsCache.find(a => a.guestId === guest.id);
-                    
                     if (assignment) {
                         const room = this.roomsCache.find(r => r.id === assignment.roomId);
                         const house = this.housesCache.find(h => h.id === assignment.houseId);
                         const houseColor = house ? this.getHouseColor(house.id) : 'bg-slate-200';
-
                         return `
                         <li class="flex items-center p-4 bg-white rounded-lg shadow-sm border border-slate-200">
                             <span class="w-4 h-10 rounded-full ${houseColor} mr-4"></span>
                             <div class="flex-grow">
                                 <p class="font-bold text-slate-800">${guest.name}</p>
-                                <p class="text-sm text-slate-600">
-                                    Staying in <strong>${room?.name || 'N/A'}</strong> at <strong>${house?.name || 'N/A'}</strong>
-                                </p>
+                                <p class="text-sm text-slate-600">Staying in <strong>${room?.name || 'N/A'}</strong> at <strong>${house?.name || 'N/A'}</strong></p>
                             </div>
-                            <div class="text-right">
-                                <span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Assigned</span>
-                                <button onclick="app.showDeleteModal('assignments', '${assignment.id}')" class="text-red-600 hover:text-red-800 font-medium text-xs mt-2 block ml-auto">Remove</button>
-                            </div>
+                            <div class="text-right"><span class="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-800">Assigned</span></div>
                         </li>`;
                     } else {
                         return `
@@ -458,54 +392,71 @@
             },
 
             renderGuests() {
-                this.dom.lists.guest.innerHTML = this.guestsCache.map(guest => `
-                    <li class="flex justify-between items-center p-4 bg-white rounded-lg shadow-sm border border-slate-200">
-                        <p class="text-lg font-medium text-slate-700">${guest.name} ${guest.family ? `<span class="text-sm text-slate-500">(${guest.family})</span>` : ''}</p>
-                        <div>
-                            <button onclick="app.openEditForm('guest', '${guest.id}')" class="text-indigo-600 hover:text-indigo-800 font-medium mr-4">Edit</button>
-                            <button onclick="app.showDeleteModal('guests', '${guest.id}')" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
+                const houseOptions = this.housesCache.map(h => `<option value="${h.id}">${h.name}</option>`).join('');
+                this.dom.lists.guest.innerHTML = this.guestsCache.map(guest => {
+                    const assignment = this.assignmentsCache.find(a => a.guestId === guest.id);
+                    const room = assignment ? this.roomsCache.find(r => r.id === assignment.roomId) : null;
+                    const house = assignment ? this.housesCache.find(h => h.id === assignment.houseId) : null;
+                    return `
+                    <li class="p-4 bg-white rounded-lg shadow-sm border border-slate-200 space-y-4">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <p class="text-lg font-bold text-slate-800">${guest.name} ${guest.family ? `<span class="text-sm font-normal text-slate-500">(${guest.family})</span>` : ''}</p>
+                                ${assignment ? `<p class="text-sm text-slate-600">Assigned to: <strong>${room?.name}</strong> (${house?.name})</p>` : `<p class="text-sm text-yellow-600">Not Assigned</p>`}
+                            </div>
+                            <div>
+                                <button onclick="app.openEditForm('guest', '${guest.id}')" class="text-indigo-600 hover:text-indigo-800 font-medium mr-4">Edit</button>
+                                <button onclick="app.showDeleteModal('guests', '${guest.id}')" class="text-red-600 hover:text-red-800 font-medium">Delete</button>
+                            </div>
                         </div>
-                    </li>
-                `).join('');
+                        <div class="bg-slate-50 p-3 rounded-md">
+                            <form class="flex flex-col sm:flex-row gap-2 items-center" onsubmit="app.handleGuestAssignment(event, '${guest.id}')">
+                                <select id="house-select-${guest.id}" onchange="app.populateGuestRoomSelect('${guest.id}')" class="w-full sm:w-1/3 p-2 border border-slate-300 rounded-lg text-sm"><option value="">Select House</option>${houseOptions}</select>
+                                <select id="room-select-${guest.id}" class="w-full sm:w-1/3 p-2 border border-slate-300 rounded-lg text-sm" disabled><option value="">Select Room</option></select>
+                                <button type="submit" class="w-full sm:w-auto flex-grow bg-indigo-500 text-white px-3 py-2 text-sm font-semibold rounded-lg hover:bg-indigo-600">Assign</button>
+                                ${assignment ? `<button type="button" onclick="app.clearGuestAssignment('${assignment.id}')" class="w-full sm:w-auto bg-slate-200 px-3 py-2 text-sm font-semibold rounded-lg hover:bg-slate-300">Clear</button>` : ''}
+                            </form>
+                        </div>
+                    </li>`;
+                }).join('');
             },
 
             renderTasks() {
-                const selectedHouseId = this.dom.selects.taskFilterHouse.value;
-                const selectedRoomId = this.dom.selects.taskFilterRoom.value;
+                const groupedByHouse = this.roomsCache.reduce((acc, room) => {
+                    if (!room.prepNeeded || room.prepNeeded.length === 0) return acc;
+                    const house = this.housesCache.find(h => h.id === room.houseId);
+                    if (!house) return acc;
 
-                let filteredRooms = this.roomsCache;
-                if (selectedHouseId !== 'all') {
-                    filteredRooms = filteredRooms.filter(room => room.houseId === selectedHouseId);
-                }
-                if (selectedRoomId !== 'all') {
-                    filteredRooms = filteredRooms.filter(room => room.id === selectedRoomId);
-                }
+                    if (!acc[house.id]) {
+                        acc[house.id] = { houseName: house.name, rooms: {} };
+                    }
+                    acc[house.id].rooms[room.id] = { roomName: room.name, tasks: room.prepNeeded };
+                    return acc;
+                }, {});
 
-                let allTasks = filteredRooms.flatMap(room => 
-                    (room.prepNeeded || []).map((task, index) => ({
-                        ...task,
-                        roomName: room.name,
-                        houseName: this.housesCache.find(h => h.id === room.houseId)?.name || 'N/A',
-                        roomId: room.id,
-                        taskIndex: index,
-                    }))
-                );
-
-                allTasks.sort((a, b) => a.houseName.localeCompare(b.houseName) || a.roomName.localeCompare(b.roomName));
-
-                this.dom.lists.tasks.innerHTML = allTasks.length > 0 ? allTasks.map(task => `
-                    <li class="flex justify-between items-center p-4 bg-white rounded-lg shadow-sm border border-slate-200">
-                        <div>
-                            <p class="font-medium text-slate-800 ${task.completed ? 'task-complete' : ''}">${task.text}</p>
-                            <p class="text-sm text-slate-600">${task.houseName} - ${task.roomName}</p>
+                this.dom.lists.tasks.innerHTML = Object.values(groupedByHouse).map(houseData => `
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-slate-200">
+                        <h3 class="text-xl font-bold text-slate-800 mb-4">${houseData.houseName}</h3>
+                        <div class="space-y-4">
+                        ${Object.entries(houseData.rooms).map(([roomId, roomData]) => `
+                            <div>
+                                <h4 class="font-semibold text-slate-700 border-b pb-1 mb-2">${roomData.roomName}</h4>
+                                <ul class="space-y-2">
+                                ${roomData.tasks.map((task, index) => `
+                                    <li class="flex justify-between items-center p-2 bg-slate-50 rounded-md">
+                                        <label class="flex items-center grow cursor-pointer">
+                                            <input type="checkbox" onchange="app.toggleTaskStatus('${roomId}', ${index})" ${task.completed ? 'checked' : ''} class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 mr-3">
+                                            <span class="font-medium text-slate-800 ${task.completed ? 'task-complete' : ''}">${task.text}</span>
+                                        </label>
+                                        <button onclick="app.deleteTask('${roomId}', ${index})" class="text-red-500 hover:text-red-700 ml-4">&times;</button>
+                                    </li>
+                                `).join('')}
+                                </ul>
+                            </div>
+                        `).join('')}
                         </div>
-                        <button onclick="app.toggleTaskStatus('${task.roomId}', ${task.taskIndex})" 
-                                class="px-3 py-1 rounded-md text-xs font-semibold transition-colors
-                                       ${task.completed ? 'bg-yellow-100 text-yellow-800 hover:bg-yellow-200' : 'bg-green-100 text-green-800 hover:bg-green-200'}">
-                            ${task.completed ? 'Mark To Do' : 'Mark Complete'}
-                        </button>
-                    </li>
-                `).join('') : '<p class="text-slate-500">No tasks match the current filter.</p>';
+                    </div>
+                `).join('');
             },
             
             async handleFormSubmit(e, collectionName, isEdit = false) {
@@ -533,65 +484,45 @@
                             this.renderPrepList('add');
                         }
                     }
-                } catch (error) {
-                    console.error(`Error saving ${collectionName}:`, error);
-                }
+                } catch (error) { console.error(`Error saving ${collectionName}:`, error); }
             },
 
-            async handleAssignmentSubmit(e) {
-                e.preventDefault();
-                const form = e.target;
-                const formData = new FormData(form);
-                const data = Object.fromEntries(formData.entries());
+            async handleGuestAssignment(event, guestId) {
+                event.preventDefault();
+                const houseId = document.getElementById(`house-select-${guestId}`).value;
+                const roomId = document.getElementById(`room-select-${guestId}`).value;
+                if (!houseId || !roomId) return;
 
-                const assignees = data.guestId.startsWith('family-')
-                    ? this.guestsCache.filter(g => g.family === data.guestId.replace('family-', ''))
-                    : [this.guestsCache.find(g => g.id === data.guestId)];
-                
-                if (!assignees.length || !assignees[0]) {
-                    console.error("Guest or family not found");
-                    return;
+                const existingAssignment = this.assignmentsCache.find(a => a.guestId === guestId);
+                if (existingAssignment) {
+                    await this.deleteData('assignments', existingAssignment.id);
                 }
-                
-                for (const guest of assignees) {
-                    // Remove any existing assignment for this guest
-                    const existingAssignment = this.assignmentsCache.find(a => a.guestId === guest.id);
-                    if (existingAssignment) {
-                        await this.deleteData('assignments', existingAssignment.id);
-                    }
-                    // Add new assignment
-                    await this.addData('assignments', {
-                        houseId: data.houseId, roomId: data.roomId, guestId: guest.id,
-                    });
-                }
-                form.reset();
-                this.populateRoomSelect();
+                await this.addData('assignments', { houseId, roomId, guestId });
+            },
+            
+            async clearGuestAssignment(assignmentId) {
+                await this.deleteData('assignments', assignmentId);
             },
 
             showSection(sectionId) {
                 this.dom.sections.forEach(section => section.classList.add('hidden'));
                 document.getElementById(sectionId).classList.remove('hidden');
-                
                 this.dom.navButtons.forEach(btn => btn.classList.remove('active'));
                 document.querySelectorAll(`nav button[onclick="app.showSection('${sectionId}')"]`).forEach(b => b.classList.add('active'));
-
                 this.hideAllEditForms();
             },
 
             openEditForm(type, id) {
                 const data = this[`${type}sCache`].find(item => item.id === id);
                 if (!data) return;
-
                 this.hideAllEditForms();
                 const form = this.dom.forms[`${type}Edit`];
                 form.classList.remove('hidden');
                 this.dom.forms[type].classList.add('hidden');
-                
                 for (const key in data) {
                     if (form.elements[key]) form.elements[key].value = data[key];
                 }
                 form.elements.id.value = id;
-
                 if (type === 'room') {
                     this.editTempPrepList = [...(data.prepNeeded || [])];
                     this.renderPrepList('edit');
@@ -641,45 +572,32 @@
                 `).join('');
             },
 
-            populateSelects() {
-                const houseOptions = this.housesCache.map(h => `<option value="${h.id}">${h.name}</option>`).join('');
-                this.dom.selects.roomHouse.innerHTML = `<option value="" disabled selected>Select a House</option>${houseOptions}`;
-                this.dom.selects.assignmentHouse.innerHTML = `<option value="" disabled selected>1. Select a House</option>${houseOptions}`;
-
-                const guestOptions = this.guestsCache.map(g => `<option value="${g.id}">${g.name}</option>`).join('');
-                const families = [...new Set(this.guestsCache.filter(g => g.family).map(g => g.family))];
-                const familyOptions = families.map(f => `<option value="family-${f}">Family: ${f}</option>`).join('');
-                this.dom.selects.assignmentGuest.innerHTML = `<option value="" disabled selected>3. Select a Guest/Family</option><optgroup label="Families">${familyOptions}</optgroup><optgroup label="Individuals">${guestOptions}</optgroup>`;
-                
-                this.populateTaskFilters();
-            },
-
-            populateTaskFilters() {
-                const houseOptions = this.housesCache.map(h => `<option value="${h.id}">${h.name}</option>`).join('');
-                this.dom.selects.taskFilterHouse.innerHTML = `<option value="all">All Houses</option>${houseOptions}`;
-                this.populateTaskRoomFilter();
-            },
-
-            populateTaskRoomFilter() {
-                const selectedHouseId = this.dom.selects.taskFilterHouse.value;
-                let roomsToList = (selectedHouseId === 'all')
-                    ? this.roomsCache
-                    : this.roomsCache.filter(r => r.houseId === selectedHouseId);
-                
-                const roomOptions = roomsToList.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
-                this.dom.selects.taskFilterRoom.innerHTML = `<option value="all">All Rooms</option>${roomOptions}`;
-            },
-
-            populateRoomSelect() {
-                const houseId = this.dom.selects.assignmentHouse.value;
+            populateGuestRoomSelect(guestId) {
+                const houseId = document.getElementById(`house-select-${guestId}`).value;
+                const roomSelect = document.getElementById(`room-select-${guestId}`);
                 const roomsInHouse = this.roomsCache.filter(r => r.houseId === houseId);
                 const roomOptions = roomsInHouse.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
-                this.dom.selects.assignmentRoom.innerHTML = `<option value="" disabled selected>2. Select a Room</option>${roomOptions}`;
-                this.dom.selects.assignmentRoom.disabled = !houseId;
-                this.dom.selects.assignmentRoom.classList.toggle('bg-slate-100', !houseId);
+                roomSelect.innerHTML = `<option value="">Select Room</option>${roomOptions}`;
+                roomSelect.disabled = !houseId;
             },
             
-            sortRooms(sortBy) { this.renderRooms(sortBy); },
+            async toggleTaskStatus(roomId, taskIndex) {
+                const room = this.roomsCache.find(r => r.id === roomId);
+                if (room && room.prepNeeded && room.prepNeeded[taskIndex]) {
+                    const updatedPrepNeeded = [...room.prepNeeded];
+                    updatedPrepNeeded[taskIndex].completed = !updatedPrepNeeded[taskIndex].completed;
+                    await this.updateData('rooms', roomId, { prepNeeded: updatedPrepNeeded });
+                }
+            },
+
+            async deleteTask(roomId, taskIndex) {
+                const room = this.roomsCache.find(r => r.id === roomId);
+                if (room && room.prepNeeded && room.prepNeeded[taskIndex]) {
+                    const updatedPrepNeeded = [...room.prepNeeded];
+                    updatedPrepNeeded.splice(taskIndex, 1);
+                    await this.updateData('rooms', roomId, { prepNeeded: updatedPrepNeeded });
+                }
+            },
 
             showDeleteModal(collectionName, id) {
                 this.dom.deleteModal.container.classList.remove('hidden');
@@ -694,15 +612,6 @@
             getHouseColor(houseId) {
                 const houseIndex = this.housesCache.findIndex(h => h.id === houseId);
                 return this.houseColors[houseIndex % this.houseColors.length] || 'bg-slate-200';
-            },
-
-            async toggleTaskStatus(roomId, taskIndex) {
-                const room = this.roomsCache.find(r => r.id === roomId);
-                if (room && room.prepNeeded && room.prepNeeded[taskIndex]) {
-                    const updatedPrepNeeded = [...room.prepNeeded];
-                    updatedPrepNeeded[taskIndex].completed = !updatedPrepNeeded[taskIndex].completed;
-                    await this.updateData('rooms', roomId, { prepNeeded: updatedPrepNeeded });
-                }
             },
 
             async addData(collectionName, data) {
