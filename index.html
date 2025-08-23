@@ -275,6 +275,63 @@
             overflow: hidden;
             text-overflow: ellipsis;
         }
+
+        /* Dashboard Tile Styles */
+        #dashboard-tiles {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        }
+
+        .house-tile {
+            background-color: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .house-title {
+            color: #2e7d32;
+            font-size: 1.5rem;
+            margin-top: 0;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .room-grid {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .room-tile {
+            background-color: #fff;
+            padding: 1rem;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid #4CAF50;
+        }
+
+        .room-tile p {
+            margin: 0;
+            font-size: 1rem;
+        }
+
+        .room-tile .guest-info {
+            font-weight: bold;
+            color: #333;
+        }
+
+        .room-tile .status-available {
+            color: #4CAF50;
+            font-weight: bold;
+        }
+
+        .room-tile .status-occupied {
+            color: #d32f2f;
+            font-weight: bold;
+        }
     </style>
     <!-- Firebase SDKs -->
     <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
@@ -299,11 +356,8 @@
         <!-- Dashboard Section -->
         <section id="dashboard" class="active">
             <h2>Dashboard</h2>
-            <div id="dashboard-summary">
-                <p>Welcome! Use the navigation bar above to manage your houses, rooms, and guest assignments. All your data is saved securely in the cloud via Firebase.</p>
-                <div id="summary-content"></div>
-                <div id="user-info"></div>
-            </div>
+            <div id="dashboard-tiles"></div>
+            <div id="user-info"></div>
         </section>
 
         <!-- Houses Section -->
@@ -446,7 +500,7 @@
         const assignmentHouseSelect = document.getElementById('assignment-house');
         const assignmentRoomSelect = document.getElementById('assignment-room');
         const assignmentGuestSelect = document.getElementById('assignment-guest');
-        const summaryContent = document.getElementById('summary-content');
+        const dashboardTiles = document.getElementById('dashboard-tiles');
         const userInfo = document.getElementById('user-info');
         // New DOM elements for prep list
         const roomPrepItemInput = document.getElementById('room-prep-item');
@@ -782,18 +836,48 @@
         // --- Reporting Functions ---
         async function renderDashboard() {
             if (!userId) return;
-            try {
-                const houseCount = (await getDocs(collection(db, `artifacts/${appId}/users/${userId}/houses`))).size;
-                const roomCount = (await getDocs(collection(db, `artifacts/${appId}/users/${userId}/rooms`))).size;
-                const guestCount = (await getDocs(collection(db, `artifacts/${appId}/users/${userId}/guests`))).size;
-                const assignmentCount = (await getDocs(collection(db, `artifacts/${appId}/users/${userId}/assignments`))).size;
+            const today = new Date().toISOString().split('T')[0];
+            dashboardTiles.innerHTML = ''; // Clear previous content
 
-                summaryContent.innerHTML = `
-                    <p><strong>Total Houses:</strong> ${houseCount}</p>
-                    <p><strong>Total Rooms:</strong> ${roomCount}</p>
-                    <p><strong>Total Guests:</strong> ${guestCount}</p>
-                    <p><strong>Active Assignments:</strong> ${assignmentCount}</p>
-                `;
+            try {
+                const housesSnap = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/houses`));
+                const roomsSnap = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/rooms`));
+                const assignmentsSnap = await getDocs(collection(db, `artifacts/${appId}/users/${userId}/assignments`));
+
+                const houses = housesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const rooms = roomsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const assignments = assignmentsSnap.docs.map(doc => doc.data());
+
+                houses.forEach(house => {
+                    const houseTile = document.createElement('div');
+                    houseTile.className = 'house-tile';
+                    houseTile.innerHTML = `<h3 class="house-title">🏡 ${house.name}</h3><div class="room-grid"></div>`;
+                    const roomGrid = houseTile.querySelector('.room-grid');
+
+                    const houseRooms = rooms.filter(room => room.houseId === house.id);
+
+                    houseRooms.forEach(room => {
+                        const roomTile = document.createElement('div');
+                        roomTile.className = 'room-tile';
+                        
+                        const activeAssignment = assignments.find(a => 
+                            a.roomId === room.id && a.startDate <= today && a.endDate >= today
+                        );
+                        
+                        let statusText = `<p class="status-available">Available</p>`;
+                        if (activeAssignment) {
+                            statusText = `<p class="guest-info">Occupied by: ${activeAssignment.guestName}</p>`;
+                        }
+
+                        roomTile.innerHTML = `
+                            <h4>${room.name}</h4>
+                            ${statusText}
+                        `;
+                        roomGrid.appendChild(roomTile);
+                    });
+
+                    dashboardTiles.appendChild(houseTile);
+                });
             } catch (error) {
                 console.error("Error rendering dashboard:", error);
             }
