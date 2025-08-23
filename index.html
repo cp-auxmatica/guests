@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family Guest Management System</title>
-    <!-- Use Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,6 +18,7 @@
                     animation: {
                         'fade-in': 'fadeIn 0.5s ease-in-out',
                         'slide-up': 'slideUp 0.3s ease-out',
+                        'bounce-subtle': 'bounceSubtle 0.6s ease-out',
                     }
                 }
             }
@@ -28,37 +28,59 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-
+        
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
+        
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
+        
+        @keyframes bounceSubtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
         .glass-card {
             backdrop-filter: blur(10px);
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-
+        
         .nav-active {
             background: linear-gradient(135deg, #4f46e5, #7c3aed);
             color: white;
             box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
         }
-
+        
+        .task-complete {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+        
         .capacity-indicator {
             background: linear-gradient(90deg, #10b981, #059669);
         }
-
+        
         .capacity-full {
             background: linear-gradient(90deg, #ef4444, #dc2626);
         }
-
+        
+        .status-assigned {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .status-available {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .status-unavailable {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
         .hover-lift:hover {
             transform: translateY(-2px);
             transition: all 0.2s ease;
@@ -66,6 +88,7 @@
     </style>
 </head>
 <body class="font-inter bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+    <!-- Loading Screen -->
     <div id="loading-overlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
         <div class="text-center">
             <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent mb-4"></div>
@@ -73,6 +96,7 @@
         </div>
     </div>
 
+    <!-- Enhanced Delete Modal -->
     <div id="delete-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
         <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 animate-slide-up">
             <div class="p-6">
@@ -95,6 +119,7 @@
         </div>
     </div>
 
+    <!-- Success Toast -->
     <div id="success-toast" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-40 animate-slide-up">
         <div class="flex items-center">
             <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,176 +130,700 @@
     </div>
 
     <div class="flex flex-col min-h-screen">
+        <!-- Enhanced Header -->
         <header class="glass-card shadow-lg sticky top-0 z-30 border-b border-white/20">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div class="flex items-center justify-between h-18 py-4">
                     <div class="flex items-center space-x-4">
                         <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
-                             <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 8v8m-4-5v5m-4-2v2m-2 4h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 15v-4a2 2 0 114 0v4"></path>
+                            </svg>
                         </div>
                         <div>
                             <h1 class="text-2xl font-bold text-slate-800">Guest Management</h1>
                             <p class="text-sm text-slate-600">Professional Family Planning System</p>
                         </div>
                     </div>
-                    <!-- New: Desktop-only navigation -->
                     <nav class="hidden lg:flex space-x-2">
                         <button onclick="app.showSection('overview')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Overview</button>
                         <button onclick="app.showSection('properties')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Properties</button>
                         <button onclick="app.showSection('accommodations')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Accommodations</button>
                         <button onclick="app.showSection('guests')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Guests</button>
                         <button onclick="app.showSection('assignments')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Assignments</button>
+                        <button onclick="app.showSection('tasks')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Tasks</button>
                     </nav>
-
-                    <!-- New: Mobile hamburger menu icon -->
-                    <button id="menu-toggle" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-white/60 transition-all">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path id="menu-icon-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path><path id="menu-icon-close" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                    </button>
                 </div>
             </div>
-            <!-- New: Mobile dropdown menu -->
-            <nav id="mobile-menu" class="hidden lg:hidden flex-col items-center py-4 bg-white/90 border-t border-white/20">
-                <button onclick="app.showSection('overview'); app.toggleMenu();" class="w-full px-4 py-3 text-center text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Overview</button>
-                <button onclick="app.showSection('properties'); app.toggleMenu();" class="w-full px-4 py-3 text-center text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Properties</button>
-                <button onclick="app.showSection('accommodations'); app.toggleMenu();" class="w-full px-4 py-3 text-center text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Accommodations</button>
-                <button onclick="app.showSection('guests'); app.toggleMenu();" class="w-full px-4 py-3 text-center text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Guests</button>
-                <button onclick="app.showSection('assignments'); app.toggleMenu();" class="w-full px-4 py-3 text-center text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Assignments</button>
-            </nav>
         </header>
 
+        <!-- Mobile Navigation -->
+        <nav class="lg:hidden glass-card sticky top-18 z-20 border-b border-white/20">
+            <div class="flex overflow-x-auto px-4 py-3 space-x-2">
+                <button onclick="app.showSection('overview')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Overview</button>
+                <button onclick="app.showSection('properties')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Properties</button>
+                <button onclick="app.showSection('accommodations')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Accommodations</button>
+                <button onclick="app.showSection('guests')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Guests</button>
+                <button onclick="app.showSection('assignments')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Assignments</button>
+                <button onclick="app.showSection('tasks')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Tasks</button>
+            </div>
+        </nav>
+
         <main class="flex-grow max-w-7xl mx-auto w-full p-4 lg:p-8">
+            <!-- Overview Section -->
             <section id="overview" class="animate-fade-in">
                 <div class="mb-8">
                     <h2 class="text-3xl font-bold text-slate-800 mb-2">System Overview</h2>
                     <p class="text-slate-600">Comprehensive view of your guest management system</p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
                     <div class="glass-card rounded-2xl p-6 hover-lift">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-slate-600">Total Properties</p>
                                 <p id="stat-properties" class="text-2xl font-bold text-slate-800">0</p>
                             </div>
-                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center"><svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg></div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                            </div>
                         </div>
                     </div>
+                    
                     <div class="glass-card rounded-2xl p-6 hover-lift">
                         <div class="flex items-center justify-between">
                             <div>
-                                <p class="text-sm font-medium text-slate-600">Total Rooms</p>
+                                <p class="text-sm font-medium text-slate-600">Available Rooms</p>
                                 <p id="stat-rooms" class="text-2xl font-bold text-slate-800">0</p>
                             </div>
-                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center"><svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg></div>
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                                </svg>
+                            </div>
                         </div>
                     </div>
+                    
                     <div class="glass-card rounded-2xl p-6 hover-lift">
                         <div class="flex items-center justify-between">
                             <div>
                                 <p class="text-sm font-medium text-slate-600">Total Guests</p>
                                 <p id="stat-guests" class="text-2xl font-bold text-slate-800">0</p>
                             </div>
-                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center"><svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a3 3 0 11-6 0 3 3 0 016 0z"></path></svg></div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6 hover-lift">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-slate-600">Pending Tasks</p>
+                                <p id="stat-tasks" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                            </div>
                         </div>
                     </div>
                 </div>
+
+                <!-- Guest Assignments Overview -->
                 <div class="glass-card rounded-2xl p-6">
                     <h3 class="text-xl font-semibold text-slate-800 mb-4">Current Assignments</h3>
-                    <div id="overview-assignments" class="space-y-3"></div>
+                    <div id="overview-assignments" class="space-y-3">
+                        <!-- Dynamic content -->
+                    </div>
                 </div>
             </section>
 
+            <!-- Properties Section -->
             <section id="properties" class="hidden animate-fade-in">
-                <div class="mb-8"><h2 class="text-3xl font-bold text-slate-800 mb-2">Properties Management</h2><p class="text-slate-600">Manage your properties and locations</p></div>
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Properties Management</h2>
+                    <p class="text-slate-600">Manage your properties and locations</p>
+                </div>
+
                 <div class="glass-card rounded-2xl p-6 mb-8">
                     <form id="property-form" class="flex flex-col sm:flex-row gap-4">
-                        <input type="text" name="name" placeholder="Property name (e.g., Main House)" required class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <input type="text" name="address" placeholder="Address (optional)" class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:shadow-lg transition-all">Add Property</button>
+                        <input type="text" name="name" placeholder="Property name (e.g., Main House, Guest Cottage)" required 
+                               class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="text" name="address" placeholder="Address (optional)" 
+                               class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:shadow-lg transition-all">
+                            Add Property
+                        </button>
                     </form>
+                    
                     <form id="property-edit-form" class="hidden flex-col sm:flex-row gap-4">
                         <input type="hidden" name="id">
-                        <input type="text" name="name" placeholder="Property name" required class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <input type="text" name="address" placeholder="Address" class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <button type="submit" class="bg-gradient-to-r from-green-500 to-blue-500 text-white font-semibold px-6 py-3 rounded-xl">Update</button>
-                        <button type="button" onclick="app.hideEditForm('property')" class="bg-slate-300 hover:bg-slate-400 text-slate-800 font-semibold px-6 py-3 rounded-xl">Cancel</button>
+                        <input type="text" name="name" placeholder="Property name" required 
+                               class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="text" name="address" placeholder="Address" 
+                               class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-6 py-3 rounded-xl">Update</button>
+                        <button type="button" onclick="app.hideEditForm('property')" class="bg-slate-400 text-white font-semibold px-6 py-3 rounded-xl">Cancel</button>
                     </form>
                 </div>
-                <div id="property-list" class="space-y-4"></div>
+
+                <div id="property-list" class="space-y-4">
+                    <!-- Dynamic content -->
+                </div>
             </section>
 
+            <!-- Accommodations Section -->
             <section id="accommodations" class="hidden animate-fade-in">
-                 <div class="mb-8"><h2 class="text-3xl font-bold text-slate-800 mb-2">Accommodations</h2><p class="text-slate-600">Manage rooms and sleeping arrangements</p></div>
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Accommodations</h2>
+                    <p class="text-slate-600">Manage rooms and sleeping arrangements</p>
+                </div>
+
                 <div class="glass-card rounded-2xl p-6 mb-8">
-                    <form id="room-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 items-center">
-                        <select name="propertyId" required class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="">Select Property</option></select>
-                        <input type="text" name="name" placeholder="Room name" required class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <input type="number" name="capacity" placeholder="Max guests" required min="1" max="20" class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <select name="bedType" required class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <option value="">Bed Type</option><option value="King">King Bed</option><option value="Queen">Queen Bed</option><option value="Full">Full Bed</option><option value="Twin">Twin Bed</option><option value="Bunk">Bunk Beds</option><option value="Sofa">Sofa Bed</option><option value="None">No Bed</option>
+                    <form id="room-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <select name="propertyId" required class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Select Property</option>
                         </select>
-                        <input type="text" name="notes" placeholder="Notes (e.g., private bath)" class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <button type="submit" class="md:col-span-2 lg:col-span-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-6 py-3 rounded-xl hover:shadow-lg transition-all">Add Room</button>
+                        <input type="text" name="name" placeholder="Room name" required 
+                               class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="number" name="capacity" placeholder="Max guests" required min="1" max="10"
+                               class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <select name="bedType" required class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Bed Type</option>
+                            <option value="King">King Bed</option>
+                            <option value="Queen">Queen Bed</option>
+                            <option value="Full">Full Bed</option>
+                            <option value="Twin">Twin Bed</option>
+                            <option value="Bunk">Bunk Beds</option>
+                            <option value="Sofa">Sofa Bed</option>
+                            <option value="None">No Bed</option>
+                        </select>
+                        <select name="roomType" class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Room Type (optional)</option>
+                            <option value="Bedroom">Bedroom</option>
+                            <option value="Living Room">Living Room</option>
+                            <option value="Den">Den</option>
+                            <option value="Office">Office</option>
+                            <option value="Basement">Basement</option>
+                            <option value="Loft">Loft</option>
+                        </select>
+                        <button type="submit" class="md:col-span-2 lg:col-span-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-6 py-3 rounded-xl hover:shadow-lg transition-all">
+                            Add Room
+                        </button>
                     </form>
                 </div>
-                <div id="room-list" class="grid grid-cols-1 lg:grid-cols-2 gap-6"></div>
+
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <span class="text-slate-600 font-medium">Sort by:</span>
+                    <button onclick="app.sortRooms('property')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors">Property</button>
+                    <button onclick="app.sortRooms('name')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors">Room Name</button>
+                    <button onclick="app.sortRooms('capacity')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors">Capacity</button>
+                </div>
+
+                <div id="room-list" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Dynamic content -->
+                </div>
             </section>
 
+            <!-- Guests Section -->
             <section id="guests" class="hidden animate-fade-in">
-                <div class="mb-8"><h2 class="text-3xl font-bold text-slate-800 mb-2">Guest Management</h2><p class="text-slate-600">Add and manage your guests</p></div>
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Guest Management</h2>
+                    <p class="text-slate-600">Add and manage your guests</p>
+                </div>
+
                 <div class="glass-card rounded-2xl p-6 mb-8">
-                    <form id="guest-form" class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
-                        <input type="text" name="name" placeholder="Guest name" required class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <input type="text" name="family" placeholder="Family/group name (optional)" class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-6 py-3 rounded-xl hover:shadow-lg transition-all">Add Guest</button>
+                    <form id="guest-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" name="name" placeholder="Guest name" required 
+                               class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="text" name="family" placeholder="Family/group name (optional)" 
+                               class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-6 py-3 rounded-xl hover:shadow-lg transition-all">
+                            Add Guest
+                        </button>
                     </form>
                 </div>
-                <div id="guest-list" class="space-y-4"></div>
+
+                <div id="guest-list" class="space-y-4">
+                    <!-- Dynamic content -->
+                </div>
             </section>
 
+            <!-- Assignments Section -->
             <section id="assignments" class="hidden animate-fade-in">
-                <div class="mb-8"><h2 class="text-3xl font-bold text-slate-800 mb-2">Room Assignments</h2><p class="text-slate-600">Assign guests to available rooms</p></div>
-                <div id="assignment-list" class="space-y-6"></div>
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Room Assignments</h2>
+                    <p class="text-slate-600">Assign guests to rooms and manage accommodations</p>
+                </div>
+
+                <div id="assignment-list" class="space-y-6">
+                    <!-- Dynamic content -->
+                </div>
+            </section>
+
+            <!-- Tasks Section -->
+            <section id="tasks" class="hidden animate-fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Preparation Tasks</h2>
+                    <p class="text-slate-600">Track room preparation and setup tasks</p>
+                </div>
+
+                <div id="tasks-list" class="space-y-6">
+                    <!-- Dynamic content -->
+                </div>
             </section>
         </main>
     </div>
 
+    <!-- Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // IMPORTANT: The hardcoded Firebase config has been replaced with the provided global variables.
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : null);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // Firebase Configuration
+        const firebaseConfig = {
+            <!DOCTYPE html>
+<html lang="en" class="h-full bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Guest Management System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'inter': ['Inter', 'sans-serif'],
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-in-out',
+                        'slide-up': 'slideUp 0.3s ease-out',
+                        'bounce-subtle': 'bounceSubtle 0.6s ease-out',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounceSubtle {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+        
+        .glass-card {
+            backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .nav-active {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed);
+            color: white;
+            box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
+        }
+        
+        .task-complete {
+            text-decoration: line-through;
+            color: #94a3b8;
+        }
+        
+        .capacity-indicator {
+            background: linear-gradient(90deg, #10b981, #059669);
+        }
+        
+        .capacity-full {
+            background: linear-gradient(90deg, #ef4444, #dc2626);
+        }
+        
+        .status-assigned {
+            background: linear-gradient(135deg, #10b981, #059669);
+        }
+        
+        .status-available {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+        }
+        
+        .status-unavailable {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+        }
+        
+        .hover-lift:hover {
+            transform: translateY(-2px);
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="font-inter bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 min-h-screen">
+    <!-- Loading Screen -->
+    <div id="loading-overlay" class="fixed inset-0 bg-white/80 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="text-center">
+            <div class="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-500 border-t-transparent mb-4"></div>
+            <p class="text-slate-600 font-medium">Loading Guest Management System...</p>
+        </div>
+    </div>
 
+    <!-- Enhanced Delete Modal -->
+    <div id="delete-modal" class="hidden fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
+        <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full mx-4 animate-slide-up">
+            <div class="p-6">
+                <div class="flex items-center justify-center w-16 h-16 mx-auto bg-red-100 rounded-full mb-4">
+                    <svg class="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                    </svg>
+                </div>
+                <h3 class="text-xl font-semibold text-slate-900 text-center mb-2">Confirm Deletion</h3>
+                <p class="text-slate-600 text-center mb-6">This action cannot be undone. Are you sure you want to proceed?</p>
+                <div class="flex space-x-3">
+                    <button id="modal-cancel-delete" class="flex-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold py-3 px-4 rounded-xl transition-colors">
+                        Cancel
+                    </button>
+                    <button id="modal-confirm-delete" class="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-4 rounded-xl transition-colors">
+                        Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Success Toast -->
+    <div id="success-toast" class="hidden fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-40 animate-slide-up">
+        <div class="flex items-center">
+            <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span id="toast-message">Success!</span>
+        </div>
+    </div>
+
+    <div class="flex flex-col min-h-screen">
+        <!-- Enhanced Header -->
+        <header class="glass-card shadow-lg sticky top-0 z-30 border-b border-white/20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-18 py-4">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z"></path>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 15v-4a2 2 0 114 0v4"></path>
+                            </svg>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-slate-800">Guest Management</h1>
+                            <p class="text-sm text-slate-600">Professional Family Planning System</p>
+                        </div>
+                    </div>
+                    <nav class="hidden lg:flex space-x-2">
+                        <button onclick="app.showSection('overview')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Overview</button>
+                        <button onclick="app.showSection('properties')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Properties</button>
+                        <button onclick="app.showSection('accommodations')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Accommodations</button>
+                        <button onclick="app.showSection('guests')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Guests</button>
+                        <button onclick="app.showSection('assignments')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Assignments</button>
+                        <button onclick="app.showSection('tasks')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Tasks</button>
+                    </nav>
+                </div>
+            </div>
+        </header>
+
+        <!-- Mobile Navigation -->
+        <nav class="lg:hidden glass-card sticky top-18 z-20 border-b border-white/20">
+            <div class="flex overflow-x-auto px-4 py-3 space-x-2">
+                <button onclick="app.showSection('overview')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Overview</button>
+                <button onclick="app.showSection('properties')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Properties</button>
+                <button onclick="app.showSection('accommodations')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Accommodations</button>
+                <button onclick="app.showSection('guests')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Guests</button>
+                <button onclick="app.showSection('assignments')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Assignments</button>
+                <button onclick="app.showSection('tasks')" class="whitespace-nowrap px-4 py-2 rounded-lg text-sm font-medium text-slate-600 hover:bg-white/60">Tasks</button>
+            </div>
+        </nav>
+
+        <main class="flex-grow max-w-7xl mx-auto w-full p-4 lg:p-8">
+            <!-- Overview Section -->
+            <section id="overview" class="animate-fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">System Overview</h2>
+                    <p class="text-slate-600">Comprehensive view of your guest management system</p>
+                </div>
+
+                <!-- Statistics Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-8">
+                    <div class="glass-card rounded-2xl p-6 hover-lift">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-slate-600">Total Properties</p>
+                                <p id="stat-properties" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6 hover-lift">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-slate-600">Available Rooms</p>
+                                <p id="stat-rooms" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-green-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6 hover-lift">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-slate-600">Total Guests</p>
+                                <p id="stat-guests" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-purple-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="glass-card rounded-2xl p-6 hover-lift">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-sm font-medium text-slate-600">Pending Tasks</p>
+                                <p id="stat-tasks" class="text-2xl font-bold text-slate-800">0</p>
+                            </div>
+                            <div class="w-12 h-12 bg-orange-100 rounded-xl flex items-center justify-center">
+                                <svg class="w-6 h-6 text-orange-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Guest Assignments Overview -->
+                <div class="glass-card rounded-2xl p-6">
+                    <h3 class="text-xl font-semibold text-slate-800 mb-4">Current Assignments</h3>
+                    <div id="overview-assignments" class="space-y-3">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Properties Section -->
+            <section id="properties" class="hidden animate-fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Properties Management</h2>
+                    <p class="text-slate-600">Manage your properties and locations</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 mb-8">
+                    <form id="property-form" class="flex flex-col sm:flex-row gap-4">
+                        <input type="text" name="name" placeholder="Property name (e.g., Main House, Guest Cottage)" required 
+                               class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="text" name="address" placeholder="Address (optional)" 
+                               class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-8 py-3 rounded-xl hover:shadow-lg transition-all">
+                            Add Property
+                        </button>
+                    </form>
+                    
+                    <form id="property-edit-form" class="hidden flex-col sm:flex-row gap-4">
+                        <input type="hidden" name="id">
+                        <input type="text" name="name" placeholder="Property name" required 
+                               class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="text" name="address" placeholder="Address" 
+                               class="flex-1 px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-6 py-3 rounded-xl">Update</button>
+                        <button type="button" onclick="app.hideEditForm('property')" class="bg-slate-400 text-white font-semibold px-6 py-3 rounded-xl">Cancel</button>
+                    </form>
+                </div>
+
+                <div id="property-list" class="space-y-4">
+                    <!-- Dynamic content -->
+                </div>
+            </section>
+
+            <!-- Accommodations Section -->
+            <section id="accommodations" class="hidden animate-fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Accommodations</h2>
+                    <p class="text-slate-600">Manage rooms and sleeping arrangements</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 mb-8">
+                    <form id="room-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <select name="propertyId" required class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Select Property</option>
+                        </select>
+                        <input type="text" name="name" placeholder="Room name" required 
+                               class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="number" name="capacity" placeholder="Max guests" required min="1" max="10"
+                               class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <select name="bedType" required class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Bed Type</option>
+                            <option value="King">King Bed</option>
+                            <option value="Queen">Queen Bed</option>
+                            <option value="Full">Full Bed</option>
+                            <option value="Twin">Twin Bed</option>
+                            <option value="Bunk">Bunk Beds</option>
+                            <option value="Sofa">Sofa Bed</option>
+                            <option value="None">No Bed</option>
+                        </select>
+                        <select name="roomType" class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                            <option value="">Room Type (optional)</option>
+                            <option value="Bedroom">Bedroom</option>
+                            <option value="Living Room">Living Room</option>
+                            <option value="Den">Den</option>
+                            <option value="Office">Office</option>
+                            <option value="Basement">Basement</option>
+                            <option value="Loft">Loft</option>
+                        </select>
+                        <button type="submit" class="md:col-span-2 lg:col-span-1 bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-6 py-3 rounded-xl hover:shadow-lg transition-all">
+                            Add Room
+                        </button>
+                    </form>
+                </div>
+
+                <div class="flex flex-wrap gap-3 mb-6">
+                    <span class="text-slate-600 font-medium">Sort by:</span>
+                    <button onclick="app.sortRooms('property')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors">Property</button>
+                    <button onclick="app.sortRooms('name')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors">Room Name</button>
+                    <button onclick="app.sortRooms('capacity')" class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-lg transition-colors">Capacity</button>
+                </div>
+
+                <div id="room-list" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Dynamic content -->
+                </div>
+            </section>
+
+            <!-- Guests Section -->
+            <section id="guests" class="hidden animate-fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Guest Management</h2>
+                    <p class="text-slate-600">Add and manage your guests</p>
+                </div>
+
+                <div class="glass-card rounded-2xl p-6 mb-8">
+                    <form id="guest-form" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <input type="text" name="name" placeholder="Guest name" required 
+                               class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <input type="text" name="family" placeholder="Family/group name (optional)" 
+                               class="px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent">
+                        <button type="submit" class="bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold px-6 py-3 rounded-xl hover:shadow-lg transition-all">
+                            Add Guest
+                        </button>
+                    </form>
+                </div>
+
+                <div id="guest-list" class="space-y-4">
+                    <!-- Dynamic content -->
+                </div>
+            </section>
+
+            <!-- Assignments Section -->
+            <section id="assignments" class="hidden animate-fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Room Assignments</h2>
+                    <p class="text-slate-600">Assign guests to rooms and manage accommodations</p>
+                </div>
+
+                <div id="assignment-list" class="space-y-6">
+                    <!-- Dynamic content -->
+                </div>
+            </section>
+
+            <!-- Tasks Section -->
+            <section id="tasks" class="hidden animate-fade-in">
+                <div class="mb-8">
+                    <h2 class="text-3xl font-bold text-slate-800 mb-2">Preparation Tasks</h2>
+                    <p class="text-slate-600">Track room preparation and setup tasks</p>
+                </div>
+
+                <div id="tasks-list" class="space-y-6">
+                    <!-- Dynamic content -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Firebase SDKs -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, deleteDoc, doc, setDoc, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // Firebase Configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyB_0fHWf0Hrpjcv4Hn0QY4L4JDMpc9RFVc",
+            authDomain: "home-guests.firebaseapp.com",
+            projectId: "home-guests",
+            storageBucket: "home-guests.firebasestorage.app",
+            messagingSenderId: "527629164349",
+            appId: "1:527629164349:web:6eca4e0ce1020d35f56f54"
+        };
+
+        // Enhanced App Object
         const app = {
+            // Firebase properties
             db: null,
             auth: null,
             userId: null,
-            appId: appId,
-
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'home-guests',
+            
+            // Data caches
             data: {
                 properties: [],
                 rooms: [],
                 guests: [],
                 assignments: [],
+                tasks: []
             },
-
+            
+            nextId: 1,
+            
             async init() {
-                try {
-                    const firebaseApp = initializeApp(firebaseConfig);
-                    this.db = getFirestore(firebaseApp);
-                    this.auth = getAuth(firebaseApp);
-
-                    await this.authenticateUser();
-                    this.bindEvents();
-
-                } catch (error) {
-                    console.error("Initialization error:", error);
-                }
+                // Initialize Firebase
+                const finalFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
+                const firebaseApp = initializeApp(finalFirebaseConfig);
+                this.db = getFirestore(firebaseApp);
+                this.auth = getAuth(firebaseApp);
+                
+                this.bindEvents();
+                await this.authenticateUser();
             },
-
-            authenticateUser() {
+            
+            // Authentication
+            async authenticateUser() {
                 return new Promise((resolve) => {
                     onAuthStateChanged(this.auth, async (user) => {
                         if (user) {
@@ -290,427 +839,683 @@
                                 }
                             } catch (error) {
                                 console.error("Authentication failed:", error);
+                                document.getElementById('loading-overlay').innerHTML = `
+                                    <div class="text-center">
+                                        <div class="text-red-600 text-lg font-semibold mb-2">Authentication Failed</div>
+                                        <p class="text-slate-600">Please refresh the page to try again</p>
+                                    </div>
+                                `;
                             }
                         }
                     });
                 });
             },
-
+            
+            // Setup real-time listeners for Firebase collections
             setupRealtimeListeners() {
-                const collectionsToSync = ['properties', 'rooms', 'guests', 'assignments'];
-                let loadedCollections = 0;
-
-                collectionsToSync.forEach(collectionName => {
+                const collections = ['properties', 'rooms', 'guests', 'assignments'];
+                
+                collections.forEach(collectionName => {
                     const collectionRef = collection(this.db, `artifacts/${this.appId}/public/data/${collectionName}`);
                     onSnapshot(collectionRef, (snapshot) => {
-                        this.data[collectionName] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                        // Wait for all initial data to load before rendering
-                        if(loadedCollections < collectionsToSync.length) {
-                            loadedCollections++;
-                            if (loadedCollections === collectionsToSync.length) {
-                                this.hideLoading();
-                                this.showSection('overview');
-                            }
-                        } else {
-                            // Re-render on subsequent updates
-                            this.renderAll();
-                        }
+                        this.data[collectionName] = snapshot.docs.map(doc => ({ 
+                            id: doc.id, 
+                            ...doc.data() 
+                        }));
+                        this.renderAll();
                     }, (error) => {
                         console.error(`Error listening to ${collectionName}:`, error);
                     });
                 });
+                
+                // Load sample data if none exists
+                setTimeout(() => {
+                    if (this.data.properties.length === 0) {
+                        this.loadSampleData();
+                    }
+                    this.showSection('overview');
+                    this.hideLoading();
+                }, 1500);
             },
-
+            
             renderAll() {
+                // Only render if we have a current section visible
                 const visibleSection = document.querySelector('main section:not(.hidden)');
                 if (visibleSection) {
                     this.renderSection(visibleSection.id);
                 }
             },
-
-            hideLoading() {
-                document.getElementById('loading-overlay').classList.add('hidden');
-            },
-
-            bindEvents() {
-                document.getElementById('property-form').addEventListener('submit', (e) => this.handlePropertySubmit(e));
-                document.getElementById('property-edit-form').addEventListener('submit', (e) => this.handlePropertyUpdate(e));
-                document.getElementById('room-form').addEventListener('submit', (e) => this.handleRoomSubmit(e));
-                document.getElementById('guest-form').addEventListener('submit', (e) => this.handleGuestSubmit(e));
-                document.getElementById('modal-cancel-delete').addEventListener('click', () => this.hideDeleteModal());
+            
+            async loadSampleData() {
+                // Sample properties
+                await this.addProperty({ name: 'Main House', address: '123 Family Lane' });
+                await this.addProperty({ name: 'Guest Cottage', address: '125 Family Lane' });
                 
-                // New: Add event listener for the mobile menu toggle
-                document.getElementById('menu-toggle').addEventListener('click', () => this.toggleMenu());
+                // Wait a bit for properties to be created
+                setTimeout(async () => {
+                    if (this.data.properties.length >= 2) {
+                        // Sample rooms
+                        await this.addRoom({ 
+                            propertyId: this.data.properties[0].id, 
+                            name: 'Master Bedroom', 
+                            capacity: 2, 
+                            bedType: 'King', 
+                            roomType: 'Bedroom' 
+                        });
+                        await this.addRoom({ 
+                            propertyId: this.data.properties[0].id, 
+                            name: 'Guest Room 1', 
+                            capacity: 2, 
+                            bedType: 'Queen', 
+                            roomType: 'Bedroom' 
+                        });
+                        await this.addRoom({ 
+                            propertyId: this.data.properties[1].id, 
+                            name: 'Cottage Bedroom', 
+                            capacity: 4, 
+                            bedType: 'Bunk', 
+                            roomType: 'Bedroom' 
+                        });
+                        
+                        // Sample guests
+                        await this.addGuest({ name: 'John Smith', family: 'Smith Family' });
+                        await this.addGuest({ name: 'Jane Smith', family: 'Smith Family' });
+                        await this.addGuest({ name: 'Bob Johnson', family: 'Johnson Family' });
+                    }
+                }, 1000);
             },
             
-            // New: Toggle mobile menu visibility
-            toggleMenu() {
-                const mobileMenu = document.getElementById('mobile-menu');
-                const openIcon = document.getElementById('menu-icon-open');
-                const closeIcon = document.getElementById('menu-icon-close');
-
-                mobileMenu.classList.toggle('hidden');
-                openIcon.classList.toggle('hidden');
-                closeIcon.classList.toggle('hidden');
+            hideLoading() {
+                setTimeout(() => {
+                    document.getElementById('loading-overlay').classList.add('hidden');
+                }, 1000);
             },
-
+            
+            bindEvents() {
+                // Form submissions
+                document.getElementById('property-form').addEventListener('submit', (e) => this.handlePropertySubmit(e));
+                document.getElementById('room-form').addEventListener('submit', (e) => this.handleRoomSubmit(e));
+                document.getElementById('guest-form').addEventListener('submit', (e) => this.handleGuestSubmit(e));
+                
+                // Modal events
+                document.getElementById('modal-cancel-delete').addEventListener('click', () => this.hideDeleteModal());
+            },
+            
             showSection(sectionId) {
-                document.querySelectorAll('main section').forEach(section => section.classList.add('hidden'));
+                // Hide all sections
+                document.querySelectorAll('main section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Show selected section
                 document.getElementById(sectionId).classList.remove('hidden');
                 
-                // Update active state for both desktop and mobile buttons
-                document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('nav-active'));
-                document.querySelectorAll(`button[onclick*="showSection('${sectionId}')"]`).forEach(btn => btn.classList.add('nav-active'));
+                // Update navigation
+                document.querySelectorAll('nav button').forEach(btn => {
+                    btn.classList.remove('nav-active');
+                });
+                document.querySelectorAll(`button[onclick="app.showSection('${sectionId}')"]`).forEach(btn => {
+                    btn.classList.add('nav-active');
+                });
                 
+                // Render content for the section
                 this.renderSection(sectionId);
             },
-
+            
             renderSection(sectionId) {
                 switch(sectionId) {
-                    case 'overview': this.renderOverview(); break;
-                    case 'properties': this.renderProperties(); break;
-                    case 'accommodations': this.renderRooms(); break;
-                    case 'guests': this.renderGuests(); break;
-                    case 'assignments': this.renderAssignments(); break;
+                    case 'overview':
+                        this.renderOverview();
+                        break;
+                    case 'properties':
+                        this.renderProperties();
+                        break;
+                    case 'accommodations':
+                        this.renderRooms();
+                        break;
+                    case 'guests':
+                        this.renderGuests();
+                        break;
+                    case 'assignments':
+                        this.renderAssignments();
+                        break;
+                    case 'tasks':
+                        this.renderTasks();
+                        break;
                 }
             },
-
-            // --- RENDER METHODS ---
-
+            
             renderOverview() {
+                // Update statistics
                 document.getElementById('stat-properties').textContent = this.data.properties.length;
                 document.getElementById('stat-rooms').textContent = this.data.rooms.length;
                 document.getElementById('stat-guests').textContent = this.data.guests.length;
-
+                document.getElementById('stat-tasks').textContent = this.getPendingTasksCount();
+                
+                // Render assignments overview
                 const assignmentsContainer = document.getElementById('overview-assignments');
                 const assignments = this.getAssignmentDetails();
-
+                
                 if (assignments.length === 0) {
-                    assignmentsContainer.innerHTML = `<div class="text-center py-8 text-slate-500"><svg class="w-12 h-12 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><p>No assignments yet. Start by assigning guests to rooms.</p></div>`;
+                    assignmentsContainer.innerHTML = `
+                        <div class="text-center py-8 text-slate-500">
+                            <svg class="w-12 h-12 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <p>No assignments yet. Start by adding properties, rooms, and guests.</p>
+                        </div>
+                    `;
                 } else {
-                    assignmentsContainer.innerHTML = assignments.map(({guest, room, property}) => `
+                    assignmentsContainer.innerHTML = assignments.map(assignment => `
                         <div class="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-slate-200">
                             <div class="flex items-center space-x-4">
-                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">${guest.name.charAt(0)}</div>
-                                <div><p class="font-semibold text-slate-800">${guest.name}</p><p class="text-sm text-slate-600">${guest.family || 'Individual guest'}</p></div>
+                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                    ${assignment.guest.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-slate-800">${assignment.guest.name}</p>
+                                    <p class="text-sm text-slate-600">${assignment.guest.family || 'Individual guest'}</p>
+                                </div>
                             </div>
-                            <div class="text-right"><p class="font-medium text-slate-800">${room.name}</p><p class="text-sm text-slate-500">${property.name}</p></div>
-                        </div>`).join('');
+                            <div class="text-right">
+                                <p class="font-medium text-slate-800">${assignment.room.name}</p>
+                                <p class="text-sm text-slate-500">${assignment.property.name}</p>
+                            </div>
+                        </div>
+                    `).join('');
                 }
             },
-
+            
             renderProperties() {
                 const container = document.getElementById('property-list');
+                
                 if (this.data.properties.length === 0) {
-                    container.innerHTML = `<div class="text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg><p class="text-lg font-medium mb-2">No properties added yet</p><p>Add your first property to get started</p></div>`;
-                } else {
-                    container.innerHTML = this.data.properties.map(property => {
-                        const roomCount = this.data.rooms.filter(r => r.propertyId === property.id).length;
-                        return `
+                    container.innerHTML = `
+                        <div class="text-center py-12 text-slate-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">No properties added yet</p>
+                            <p>Add your first property to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = this.data.properties.map(property => {
+                    const roomCount = this.data.rooms.filter(r => r.propertyId === property.id).length;
+                    return `
                         <div class="glass-card rounded-2xl p-6 hover-lift">
                             <div class="flex items-start justify-between">
-                                <div>
+                                <div class="flex-1">
                                     <h3 class="text-xl font-semibold text-slate-800 mb-2">${property.name}</h3>
                                     ${property.address ? `<p class="text-slate-600 mb-3">${property.address}</p>` : ''}
-                                    <span class="flex items-center text-sm text-slate-500"><svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg>${roomCount} room${roomCount !== 1 ? 's' : ''}</span>
+                                    <div class="flex items-center space-x-4 text-sm text-slate-500">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                                            </svg>
+                                            ${roomCount} room${roomCount !== 1 ? 's' : ''}
+                                        </span>
+                                    </div>
                                 </div>
                                 <div class="flex space-x-2">
-                                    <button onclick="app.editProperty('${property.id}')" class="px-4 py-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors">Edit</button>
-                                    <button onclick="app.showDeleteModal('property', '${property.id}')" class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium transition-colors">Delete</button>
+                                    <button onclick="app.editProperty(${property.id})" class="px-4 py-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+                                        Edit
+                                    </button>
+                                    <button onclick="app.deleteProperty(${property.id})" class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium transition-colors">
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
-                        </div>`;
-                    }).join('');
-                }
+                        </div>
+                    `;
+                }).join('');
+                
+                // Update room form property dropdown
                 this.updatePropertyDropdown();
             },
-
+            
             renderRooms() {
                 const container = document.getElementById('room-list');
+                
                 if (this.data.rooms.length === 0) {
-                     container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path></svg><p class="text-lg font-medium mb-2">No rooms added yet</p><p>Add rooms to your properties to accommodate guests</p></div>`;
-                } else {
-                    container.innerHTML = this.data.rooms.map(room => {
-                        const property = this.data.properties.find(p => p.id === room.propertyId);
-                        const assignedGuests = this.data.assignments.filter(a => a.roomId === room.id).length;
-                        const isAtCapacity = assignedGuests >= room.capacity;
-                        return `
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-12 text-slate-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">No rooms added yet</p>
+                            <p>Add rooms to your properties to accommodate guests</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = this.data.rooms.map(room => {
+                    const property = this.data.properties.find(p => p.id === room.propertyId);
+                    const assignedGuests = this.data.assignments.filter(a => a.roomId === room.id).length;
+                    const isAtCapacity = assignedGuests >= room.capacity;
+                    
+                    return `
                         <div class="glass-card rounded-2xl p-6 hover-lift">
                             <div class="flex items-start justify-between mb-4">
-                                <div>
+                                <div class="flex-1">
                                     <h3 class="text-lg font-semibold text-slate-800">${room.name}</h3>
                                     <p class="text-slate-600 text-sm">${property?.name || 'Unknown Property'}</p>
                                 </div>
                                 <div class="flex space-x-2">
-                                    <button onclick="app.editRoom('${room.id}')" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Edit</button>
-                                    <button onclick="app.showDeleteModal('room', '${room.id}')" class="text-red-600 hover:text-red-800 text-sm font-medium">Delete</button>
+                                    <button onclick="app.editRoom(${room.id})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Edit</button>
+                                    <button onclick="app.deleteRoom(${room.id})" class="text-red-600 hover:text-red-800 text-sm font-medium">Delete</button>
                                 </div>
                             </div>
+                            
                             <div class="space-y-3">
                                 <div class="flex items-center justify-between text-sm">
-                                    <span class="text-slate-600">Capacity:</span><span class="font-medium ${isAtCapacity ? 'text-red-600' : 'text-green-600'}">${assignedGuests}/${room.capacity} guests</span>
+                                    <span class="text-slate-600">Capacity:</span>
+                                    <span class="font-medium ${isAtCapacity ? 'text-red-600' : 'text-green-600'}">${assignedGuests}/${room.capacity} guests</span>
                                 </div>
-                                <div class="w-full bg-slate-200 rounded-full h-2"><div class="${isAtCapacity ? 'capacity-full' : 'capacity-indicator'} h-2 rounded-full transition-all" style="width: ${(assignedGuests / room.capacity) * 100}%"></div></div>
-                                <div class="flex justify-between text-sm"><span>Bed Type: <strong>${room.bedType}</strong></span> ${room.notes ? `<span>Notes: <strong>${room.notes}</strong></span>`: ''}</div>
-                                <div class="pt-2 border-t border-slate-200"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${isAtCapacity ? 'bg-red-100 text-red-800' : assignedGuests > 0 ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800'}">${isAtCapacity ? 'Full' : assignedGuests > 0 ? 'Partially Occupied' : 'Available'}</span></div>
+                                
+                                <div class="w-full bg-slate-200 rounded-full h-2">
+                                    <div class="${isAtCapacity ? 'capacity-full' : 'capacity-indicator'} h-2 rounded-full transition-all" 
+                                         style="width: ${(assignedGuests / room.capacity) * 100}%"></div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-slate-600">Bed Type:</span>
+                                        <span class="ml-2 font-medium">${room.bedType}</span>
+                                    </div>
+                                    ${room.roomType ? `
+                                        <div>
+                                            <span class="text-slate-600">Type:</span>
+                                            <span class="ml-2 font-medium">${room.roomType}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                
+                                <div class="pt-2 border-t border-slate-200">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                        isAtCapacity ? 'bg-red-100 text-red-800' : 
+                                        assignedGuests > 0 ? 'bg-yellow-100 text-yellow-800' : 
+                                        'bg-green-100 text-green-800'
+                                    }">
+                                        ${isAtCapacity ? 'Full' : assignedGuests > 0 ? 'Partially Occupied' : 'Available'}
+                                    </span>
+                                </div>
                             </div>
-                        </div>`;
-                    }).join('');
-                }
+                        </div>
+                    `;
+                }).join('');
+                
                 this.updatePropertyDropdown();
             },
-
+            
             renderGuests() {
                 const container = document.getElementById('guest-list');
-                 if (this.data.guests.length === 0) {
-                     container.innerHTML = `<div class="text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><p class="text-lg font-medium mb-2">No guests added yet</p><p>Add guests to start making room assignments</p></div>`;
-                 } else {
-                    container.innerHTML = this.data.guests.map(guest => {
-                        const assignment = this.data.assignments.find(a => a.guestId === guest.id);
-                        const room = assignment ? this.data.rooms.find(r => r.id === assignment.roomId) : null;
-                        const property = room ? this.data.properties.find(p => p.id === room.propertyId) : null;
-                        return `
+                
+                if (this.data.guests.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12 text-slate-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">No guests added yet</p>
+                            <p>Add guests to start making room assignments</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = this.data.guests.map(guest => {
+                    const assignment = this.data.assignments.find(a => a.guestId === guest.id);
+                    const room = assignment ? this.data.rooms.find(r => r.id === assignment.roomId) : null;
+                    const property = room ? this.data.properties.find(p => p.id === room.propertyId) : null;
+                    
+                    return `
                         <div class="glass-card rounded-2xl p-6 hover-lift">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center space-x-4">
-                                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">${guest.name.charAt(0)}</div>
+                                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                        ${guest.name.charAt(0)}
+                                    </div>
                                     <div>
                                         <h3 class="text-lg font-semibold text-slate-800">${guest.name}</h3>
                                         ${guest.family ? `<p class="text-slate-600">${guest.family}</p>` : ''}
-                                        <div class="mt-2"><span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${assignment ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}">${assignment ? `Assigned to ${room.name} (${property.name})` : 'Not Assigned'}</span></div>
+                                        ${assignment ? `
+                                            <div class="mt-2">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    Assigned to ${room.name} (${property.name})
+                                                </span>
+                                            </div>
+                                        ` : `
+                                            <div class="mt-2">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    Not Assigned
+                                                </span>
+                                            </div>
+                                        `}
                                     </div>
                                 </div>
                                 <div class="flex space-x-2">
-                                    <button onclick="app.editGuest('${guest.id}')" class="px-4 py-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium">Edit</button>
-                                    <button onclick="app.showDeleteModal('guest', '${guest.id}')" class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium">Delete</button>
+                                    <button onclick="app.editGuest(${guest.id})" class="px-4 py-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium">Edit</button>
+                                    <button onclick="app.deleteGuest(${guest.id})" class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium">Delete</button>
                                 </div>
                             </div>
-                        </div>`;
-                    }).join('');
-                }
+                        </div>
+                    `;
+                }).join('');
             },
-
+            
             renderAssignments() {
                 const container = document.getElementById('assignment-list');
-                const unassignedGuests = this.data.guests.filter(g => !this.data.assignments.find(a => a.guestId === g.id));
-                const assignedDetails = this.getAssignmentDetails();
-
-                let html = '';
-                if (unassignedGuests.length > 0) {
-                    html += `<div class="glass-card rounded-2xl p-6"><h3 class="text-xl font-semibold text-slate-800 mb-4">Unassigned Guests</h3><div class="space-y-4">
-                        ${unassignedGuests.map(guest => `
-                            <div class="flex flex-col sm:flex-row items-center justify-between p-4 bg-white/50 rounded-xl border border-slate-200 gap-4">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">${guest.name.charAt(0)}</div>
-                                    <div><p class="font-semibold text-slate-800">${guest.name}</p>${guest.family ? `<p class="text-sm text-slate-600">${guest.family}</p>` : ''}</div>
-                                </div>
-                                <form onsubmit="app.handleAssignment(event, '${guest.id}')" class="flex items-center space-x-2">
-                                    <select name="roomId" required class="px-3 py-2 border border-slate-200 rounded-lg text-sm"><option value="">Select Room</option>${this.getAvailableRoomOptions()}</select>
-                                    <button type="submit" class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all">Assign</button>
-                                </form>
-                            </div>`).join('')}
-                    </div></div>`;
-                }
-
-                if (assignedDetails.length > 0) {
-                    html += `<div class="glass-card rounded-2xl p-6"><h3 class="text-xl font-semibold text-slate-800 mb-4">Current Assignments</h3><div class="space-y-4">
-                        ${assignedDetails.map(({guest, room, property, assignment}) => `
-                            <div class="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-slate-200">
-                                <div class="flex items-center space-x-4">
-                                    <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">${guest?.name.charAt(0)}</div>
-                                    <div><p class="font-semibold text-slate-800">${guest?.name}</p><p class="text-sm text-slate-600">${room?.name} in ${property?.name}</p></div>
-                                </div>
-                                <button onclick="app.removeAssignment('${assignment.id}')" class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium">Remove</button>
-                            </div>`).join('')}
-                    </div></div>`;
-                }
-
-                if (html === '') {
-                    container.innerHTML = `<div class="text-center py-12 text-slate-500"><svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path></svg><p class="text-lg font-medium mb-2">No assignments to display</p><p>Add guests and rooms to start making assignments</p></div>`;
-                } else {
-                    container.innerHTML = html;
-                }
+                const unassignedGuests = this.data.guests.filter(g => 
+                    !this.data.assignments.find(a => a.guestId === g.id)
+                );
+                
+                container.innerHTML = `
+                    ${unassignedGuests.length > 0 ? `
+                        <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-xl font-semibold text-slate-800 mb-4">Unassigned Guests</h3>
+                            <div class="space-y-4">
+                                ${unassignedGuests.map(guest => `
+                                    <div class="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-slate-200">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                                ${guest.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p class="font-semibold text-slate-800">${guest.name}</p>
+                                                ${guest.family ? `<p class="text-sm text-slate-600">${guest.family}</p>` : ''}
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            ${this.renderAssignmentForm(guest.id)}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${this.data.assignments.length > 0 ? `
+                        <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-xl font-semibold text-slate-800 mb-4">Current Assignments</h3>
+                            <div class="space-y-4">
+                                ${this.data.assignments.map(assignment => {
+                                    const guest = this.data.guests.find(g => g.id === assignment.guestId);
+                                    const room = this.data.rooms.find(r => r.id === assignment.roomId);
+                                    const property = this.data.properties.find(p => p.id === assignment.propertyId);
+                                    
+                                    return `
+                                        <div class="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-slate-200">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                                    ${guest?.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold text-slate-800">${guest?.name}</p>
+                                                    <p class="text-sm text-slate-600">${room?.name} in ${property?.name}</p>
+                                                </div>
+                                            </div>
+                                            <button onclick="app.removeAssignment(${assignment.id})" class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium">
+                                                Remove
+                                            </button>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${unassignedGuests.length === 0 && this.data.assignments.length === 0 ? `
+                        <div class="text-center py-12 text-slate-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">No assignments to display</p>
+                            <p>Add guests and rooms to start making assignments</p>
+                        </div>
+                    ` : ''}
+                `;
             },
-
-            // --- FORM HANDLERS ---
+            
+            renderAssignmentForm(guestId) {
+                return `
+                    <form onsubmit="app.handleAssignment(event, ${guestId})" class="flex items-center space-x-2">
+                        <select name="propertyId" onchange="app.updateRoomDropdown(this, ${guestId})" required class="px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                            <option value="">Select Property</option>
+                            ${this.data.properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                        </select>
+                        <select name="roomId" id="room-select-${guestId}" required disabled class="px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                            <option value="">Select Room</option>
+                        </select>
+                        <button type="submit" class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all">
+                            Assign
+                        </button>
+                    </form>
+                `;
+            },
+            
+            renderTasks() {
+                const container = document.getElementById('tasks-list');
+                // For now, show a placeholder for tasks functionality
+                container.innerHTML = `
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="text-xl font-semibold text-slate-800 mb-4">Room Preparation Tasks</h3>
+                        <div class="text-center py-8 text-slate-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">Task Management Coming Soon</p>
+                            <p>Room preparation and task tracking will be available here</p>
+                        </div>
+                    </div>
+                `;
+            },
+            
+            // Form handlers
             async handlePropertySubmit(e) {
                 e.preventDefault();
-                const data = Object.fromEntries(new FormData(e.target).entries());
-                await this.addDoc('properties', data);
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                
+                await this.addProperty(data);
                 e.target.reset();
                 this.showToast('Property added successfully!');
             },
-
-            async handlePropertyUpdate(e) {
-                e.preventDefault();
-                const form = e.target;
-                const id = form.id.value;
-                const data = { name: form.name.value, address: form.address.value };
-                await this.updateDoc('properties', id, data);
-                this.hideEditForm('property');
-                this.showToast('Property updated successfully!');
-            },
-
+            
             async handleRoomSubmit(e) {
                 e.preventDefault();
                 const formData = new FormData(e.target);
                 const data = Object.fromEntries(formData.entries());
                 data.capacity = parseInt(data.capacity);
-                await this.addDoc('rooms', data);
+                data.propertyId = data.propertyId; // Keep as string for Firebase
+                
+                await this.addRoom(data);
                 e.target.reset();
                 this.showToast('Room added successfully!');
             },
-
+            
             async handleGuestSubmit(e) {
                 e.preventDefault();
-                await this.addDoc('guests', Object.fromEntries(new FormData(e.target).entries()));
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                
+                await this.addGuest(data);
                 e.target.reset();
                 this.showToast('Guest added successfully!');
             },
-
+            
             async handleAssignment(e, guestId) {
                 e.preventDefault();
-                const roomId = new FormData(e.target).get('roomId');
-                if (!roomId) return;
-
-                const room = this.data.rooms.find(r => r.id === roomId);
-                if (!room) return;
-
-                await this.addDoc('assignments', { guestId, roomId, propertyId: room.propertyId });
+                const formData = new FormData(e.target);
+                const propertyId = formData.get('propertyId');
+                const roomId = formData.get('roomId');
+                
+                await this.addAssignment({ guestId, roomId, propertyId });
                 this.showToast('Guest assigned successfully!');
             },
-
-            // --- FIREBASE CRUD WRAPPERS ---
-            async addDoc(collectionName, data) {
+            
+            // Firebase data manipulation methods
+            async addProperty(data) {
                 if (!this.userId) return;
                 try {
-                    await addDoc(collection(this.db, `artifacts/${this.appId}/public/data/${collectionName}`), data);
-                } catch (error) { console.error(`Error adding to ${collectionName}:`, error); this.showToast('An error occurred', 'error'); }
-            },
-
-            async updateDoc(collectionName, id, data) {
-                if (!this.userId) return;
-                try {
-                    await updateDoc(doc(this.db, `artifacts/${this.appId}/public/data/${collectionName}`, id), data);
-                } catch (error) { console.error(`Error updating ${collectionName}:`, error); this.showToast('An error occurred', 'error'); }
-            },
-
-            async deleteDoc(collectionName, id) {
-                 if (!this.userId) return;
-                try {
-                    await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/${collectionName}`, id));
-                } catch (error) { console.error(`Error deleting from ${collectionName}:`, error); this.showToast('An error occurred', 'error'); }
-            },
-
-            // --- DELETION LOGIC ---
-            async deleteProperty(id) {
-                const batch = writeBatch(this.db);
-                const roomsToDelete = this.data.rooms.filter(r => r.propertyId === id);
-
-                roomsToDelete.forEach(room => {
-                    const roomRef = doc(this.db, `artifacts/${this.appId}/public/data/rooms`, room.id);
-                    batch.delete(roomRef);
-                    this.data.assignments.filter(a => a.roomId === room.id).forEach(assignment => {
-                        const assignmentRef = doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id);
-                        batch.delete(assignmentRef);
-                    });
-                });
-
-                const propRef = doc(this.db, `artifacts/${this.appId}/public/data/properties`, id);
-                batch.delete(propRef);
-
-                await batch.commit();
-                this.showToast('Property and all its rooms/assignments deleted!');
-            },
-
-            async deleteRoom(id) {
-                const batch = writeBatch(this.db);
-                this.data.assignments.filter(a => a.roomId === id).forEach(assignment => {
-                    const assignmentRef = doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id);
-                    batch.delete(assignmentRef);
-                });
-
-                const roomRef = doc(this.db, `artifacts/${this.appId}/public/data/rooms`, id);
-                batch.delete(roomRef);
-
-                await batch.commit();
-                this.showToast('Room and its assignments deleted!');
-            },
-
-            async deleteGuest(id) {
-                const batch = writeBatch(this.db);
-                this.data.assignments.filter(a => a.guestId === id).forEach(assignment => {
-                    const assignmentRef = doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id);
-                    batch.delete(assignmentRef);
-                });
-
-                const guestRef = doc(this.db, `artifacts/${this.appId}/public/data/guests`, id);
-                batch.delete(guestRef);
-
-                await batch.commit();
-                this.showToast('Guest and their assignment deleted!');
-            },
-
-            async removeAssignment(id) {
-                await this.deleteDoc('assignments', id);
-                this.showToast('Assignment removed!');
-            },
-
-            // --- EDIT LOGIC ---
-            editProperty(id) {
-                const property = this.data.properties.find(p => p.id === id);
-                if (!property) return;
-
-                const form = document.getElementById('property-edit-form');
-                form.id.value = id;
-                form.name.value = property.name;
-                form.address.value = property.address || '';
-
-                document.getElementById('property-form').classList.add('hidden');
-                form.classList.remove('hidden');
-            },
-
-            hideEditForm(type) {
-                if (type === 'property') {
-                    document.getElementById('property-edit-form').classList.add('hidden');
-                    document.getElementById('property-form').classList.remove('hidden');
-                    document.getElementById('property-edit-form').reset();
+                    await addDoc(collection(this.db, `artifacts/${this.appId}/public/data/properties`), data);
+                } catch (error) {
+                    console.error('Error adding property:', error);
+                    this.showToast('Error adding property', 'error');
                 }
             },
-
-            async editRoom(id) {
-                const room = this.data.rooms.find(r => r.id === id);
-                if (!room) return;
-
-                const newName = prompt('Edit room name:', room.name);
-                const newCapacity = prompt('Edit room capacity:', room.capacity);
-
-                if (newName && newName.trim()) {
-                    const updateData = { name: newName.trim() };
-                    if (newCapacity && !isNaN(parseInt(newCapacity))) {
-                        updateData.capacity = parseInt(newCapacity);
+            
+            async addRoom(data) {
+                if (!this.userId) return;
+                try {
+                    await addDoc(collection(this.db, `artifacts/${this.appId}/public/data/rooms`), data);
+                } catch (error) {
+                    console.error('Error adding room:', error);
+                    this.showToast('Error adding room', 'error');
+                }
+            },
+            
+            async addGuest(data) {
+                if (!this.userId) return;
+                try {
+                    await addDoc(collection(this.db, `artifacts/${this.appId}/public/data/guests`), data);
+                } catch (error) {
+                    console.error('Error adding guest:', error);
+                    this.showToast('Error adding guest', 'error');
+                }
+            },
+            
+            async addAssignment(data) {
+                if (!this.userId) return;
+                try {
+                    // Check if guest is already assigned
+                    const existingAssignment = this.data.assignments.find(a => a.guestId === data.guestId);
+                    if (existingAssignment) {
+                        await this.removeAssignment(existingAssignment.id);
                     }
-                    await this.updateDoc('rooms', id, updateData);
+                    
+                    // Check room capacity
+                    const room = this.data.rooms.find(r => r.id === data.roomId);
+                    const currentAssignments = this.data.assignments.filter(a => a.roomId === data.roomId).length;
+                    
+                    if (currentAssignments >= room.capacity) {
+                        this.showToast('Room is at full capacity!', 'error');
+                        return;
+                    }
+                    
+                    await addDoc(collection(this.db, `artifacts/${this.appId}/public/data/assignments`), data);
+                } catch (error) {
+                    console.error('Error adding assignment:', error);
+                    this.showToast('Error creating assignment', 'error');
+                }
+            },
+            
+            async removeAssignment(id) {
+                if (!this.userId) return;
+                try {
+                    await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/assignments`, id));
+                    this.showToast('Assignment removed successfully!');
+                } catch (error) {
+                    console.error('Error removing assignment:', error);
+                    this.showToast('Error removing assignment', 'error');
+                }
+            },
+            
+            async deleteProperty(id) {
+                if (!this.userId) return;
+                try {
+                    // Also delete associated rooms and assignments
+                    const roomIds = this.data.rooms.filter(r => r.propertyId === id).map(r => r.id);
+                    
+                    // Delete assignments first
+                    for (const assignment of this.data.assignments.filter(a => roomIds.includes(a.roomId))) {
+                        await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id));
+                    }
+                    
+                    // Delete rooms
+                    for (const roomId of roomIds) {
+                        await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/rooms`, roomId));
+                    }
+                    
+                    // Delete property
+                    await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/properties`, id));
+                    
+                    this.showToast('Property and associated rooms deleted!');
+                } catch (error) {
+                    console.error('Error deleting property:', error);
+                    this.showToast('Error deleting property', 'error');
+                }
+            },
+            
+            async deleteRoom(id) {
+                if (!this.userId) return;
+                try {
+                    // Also delete associated assignments
+                    for (const assignment of this.data.assignments.filter(a => a.roomId === id)) {
+                        await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id));
+                    }
+                    
+                    await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/rooms`, id));
+                    this.showToast('Room and assignments deleted!');
+                } catch (error) {
+                    console.error('Error deleting room:', error);
+                    this.showToast('Error deleting room', 'error');
+                }
+            },
+            
+            async deleteGuest(id) {
+                if (!this.userId) return;
+                try {
+                    // Also delete associated assignments
+                    for (const assignment of this.data.assignments.filter(a => a.guestId === id)) {
+                        await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id));
+                    }
+                    
+                    await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/guests`, id));
+                    this.showToast('Guest and assignments deleted!');
+                } catch (error) {
+                    console.error('Error deleting guest:', error);
+                    this.showToast('Error deleting guest', 'error');
+                }
+            },
+            
+            async updateProperty(id, data) {
+                if (!this.userId) return;
+                try {
+                    await updateDoc(doc(this.db, `artifacts/${this.appId}/public/data/properties`, id), data);
+                    this.showToast('Property updated successfully!');
+                } catch (error) {
+                    console.error('Error updating property:', error);
+                    this.showToast('Error updating property', 'error');
+                }
+            },
+            
+            async updateRoom(id, data) {
+                if (!this.userId) return;
+                try {
+                    await updateDoc(doc(this.db, `artifacts/${this.appId}/public/data/rooms`, id), data);
                     this.showToast('Room updated successfully!');
+                } catch (error) {
+                    console.error('Error updating room:', error);
+                    this.showToast('Error updating room', 'error');
                 }
             },
-
-            async editGuest(id) {
-                const guest = this.data.guests.find(g => g.id === id);
-                if (!guest) return;
-
-                const newName = prompt('Edit guest name:', guest.name);
-                const newFamily = prompt('Edit family name:', guest.family || '');
-
-                if (newName && newName.trim()) {
-                    const updateData = { name: newName.trim(), family: newFamily.trim() };
-                    await this.updateDoc('guests', id, updateData);
+            
+            async updateGuest(id, data) {
+                if (!this.userId) return;
+                try {
+                    await updateDoc(doc(this.db, `artifacts/${this.appId}/public/data/guests`, id), data);
                     this.showToast('Guest updated successfully!');
+                } catch (error) {
+                    console.error('Error updating guest:', error);
+                    this.showToast('Error updating guest', 'error');
                 }
             },
-
-            // --- UTILITY METHODS ---
+            
+            // Utility methods
             updatePropertyDropdown() {
                 const selects = document.querySelectorAll('select[name="propertyId"]');
                 const options = this.data.properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
@@ -720,67 +1525,1024 @@
                     select.value = currentValue;
                 });
             },
-
-            getAvailableRoomOptions() {
-                return this.data.properties.map(property => {
-                    const rooms = this.data.rooms.filter(r => {
-                        if (r.propertyId !== property.id) return false;
-                        const assignedCount = this.data.assignments.filter(a => a.roomId === r.id).length;
-                        return assignedCount < r.capacity;
-                    });
-                    if (rooms.length > 0) {
-                        return `<optgroup label="${property.name}">${rooms.map(r => {
-                            const assignedCount = this.data.assignments.filter(a => a.roomId === r.id).length;
-                            return `<option value="${r.id}">${r.name} (${assignedCount}/${r.capacity})</option>`
-                        }).join('')}</optgroup>`;
-                    }
-                    return '';
-                }).join('');
+            
+            updateRoomDropdown(propertySelect, guestId) {
+                const propertyId = propertySelect.value;
+                const roomSelect = document.getElementById(`room-select-${guestId}`);
+                
+                if (!propertyId) {
+                    roomSelect.innerHTML = '<option value="">Select Room</option>';
+                    roomSelect.disabled = true;
+                    return;
+                }
+                
+                const availableRooms = this.data.rooms.filter(r => {
+                    if (r.propertyId !== propertyId) return false;
+                    const assignedCount = this.data.assignments.filter(a => a.roomId === r.id).length;
+                    return assignedCount < r.capacity;
+                });
+                
+                const options = availableRooms.map(r => `<option value="${r.id}">${r.name} (${this.data.assignments.filter(a => a.roomId === r.id).length}/${r.capacity})</option>`).join('');
+                roomSelect.innerHTML = `<option value="">Select Room</option>${options}`;
+                roomSelect.disabled = false;
             },
-
+            
             getAssignmentDetails() {
                 return this.data.assignments.map(assignment => {
-                    return {
-                        assignment,
-                        guest: this.data.guests.find(g => g.id === assignment.guestId),
-                        room: this.data.rooms.find(r => r.id === assignment.roomId),
-                        property: this.data.properties.find(p => p.id === assignment.propertyId)
-                    };
-                }).filter(details => details.guest && details.room && details.property); // Filter out incomplete assignments
+                    const guest = this.data.guests.find(g => g.id === assignment.guestId);
+                    const room = this.data.rooms.find(r => r.id === assignment.roomId);
+                    const property = this.data.properties.find(p => p.id === assignment.propertyId);
+                    return { assignment, guest, room, property };
+                });
             },
-
+            
+            getPendingTasksCount() {
+                // Placeholder for task counting
+                return 0;
+            },
+            
+            sortRooms(criteria) {
+                // Implementation for sorting rooms
+                this.renderRooms();
+            },
+            
             showToast(message, type = 'success') {
                 const toast = document.getElementById('success-toast');
-                toast.querySelector('#toast-message').textContent = message;
-                toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-40 animate-slide-up ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`;
+                const messageEl = document.getElementById('toast-message');
+                
+                messageEl.textContent = message;
+                toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-40 animate-slide-up ${
+                    type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                }`;
+                
                 toast.classList.remove('hidden');
-                setTimeout(() => toast.classList.add('hidden'), 3000);
+                
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
             },
-
+            
             hideDeleteModal() {
                 document.getElementById('delete-modal').classList.add('hidden');
             },
-
+            
             showDeleteModal(type, id) {
                 const modal = document.getElementById('delete-modal');
                 const confirmBtn = document.getElementById('modal-confirm-delete');
-
-                const newConfirmBtn = confirmBtn.cloneNode(true); // To remove old event listeners
+                
+                // Remove existing event listeners by cloning the button
+                const newConfirmBtn = confirmBtn.cloneNode(true);
                 confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
-
+                
                 newConfirmBtn.addEventListener('click', () => {
                     if (type === 'property') this.deleteProperty(id);
                     else if (type === 'room') this.deleteRoom(id);
                     else if (type === 'guest') this.deleteGuest(id);
                     this.hideDeleteModal();
                 });
-
+                
                 modal.classList.remove('hidden');
             },
+            
+            // Edit functionality
+            async editProperty(id) {
+                const property = this.data.properties.find(p => p.id === id);
+                if (!property) return;
+                
+                // Simple prompt-based editing for now
+                const newName = prompt('Edit property name:', property.name);
+                const newAddress = prompt('Edit property address:', property.address || '');
+                
+                if (newName && newName.trim()) {
+                    const updateData = { name: newName.trim() };
+                    if (newAddress !== null) updateData.address = newAddress.trim();
+                    await this.updateProperty(id, updateData);
+                }
+            },
+            
+            async editRoom(id) {
+                const room = this.data.rooms.find(r => r.id === id);
+                if (!room) return;
+                
+                // Simple prompt-based editing for now
+                const newName = prompt('Edit room name:', room.name);
+                const newCapacity = prompt('Edit room capacity:', room.capacity);
+                
+                if (newName && newName.trim()) {
+                    const updateData = { name: newName.trim() };
+                    if (newCapacity && !isNaN(parseInt(newCapacity))) {
+                        updateData.capacity = parseInt(newCapacity);
+                    }
+                    await this.updateRoom(id, updateData);
+                }
+            },
+            
+            async editGuest(id) {
+                const guest = this.data.guests.find(g => g.id === id);
+                if (!guest) return;
+                
+                // Simple prompt-based editing for now
+                const newName = prompt('Edit guest name:', guest.name);
+                const newFamily = prompt('Edit family name:', guest.family || '');
+                
+                if (newName && newName.trim()) {
+                    const updateData = { name: newName.trim() };
+                    if (newFamily !== null) updateData.family = newFamily.trim();
+                    await this.updateGuest(id, updateData);
+                }
+            },
+            
+            hideEditForm(type) {
+                // Placeholder for hiding edit forms
+                console.log(`Hide edit form for ${type}`);
+            }
         };
 
+        // Make app globally available and initialize
         window.app = app;
-        document.addEventListener('DOMContentLoaded', () => app.init());
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
+    </script>
+</body>
+</html>
+        };
+
+        // Enhanced App Object
+        const app = {
+            // Firebase properties
+            db: null,
+            auth: null,
+            userId: null,
+            appId: typeof __app_id !== 'undefined' ? __app_id : 'home-guests',
+            
+            // Data caches
+            data: {
+                properties: [],
+                rooms: [],
+                guests: [],
+                assignments: [],
+                tasks: []
+            },
+            
+            nextId: 1,
+            
+            async init() {
+                // Initialize Firebase
+                const finalFirebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : firebaseConfig;
+                const firebaseApp = initializeApp(finalFirebaseConfig);
+                this.db = getFirestore(firebaseApp);
+                this.auth = getAuth(firebaseApp);
+                
+                this.bindEvents();
+                await this.authenticateUser();
+            },
+            
+            // Authentication
+            async authenticateUser() {
+                return new Promise((resolve) => {
+                    onAuthStateChanged(this.auth, async (user) => {
+                        if (user) {
+                            this.userId = user.uid;
+                            this.setupRealtimeListeners();
+                            resolve();
+                        } else {
+                            try {
+                                if (typeof __initial_auth_token !== 'undefined') {
+                                    await signInWithCustomToken(this.auth, __initial_auth_token);
+                                } else {
+                                    await signInAnonymously(this.auth);
+                                }
+                            } catch (error) {
+                                console.error("Authentication failed:", error);
+                                document.getElementById('loading-overlay').innerHTML = `
+                                    <div class="text-center">
+                                        <div class="text-red-600 text-lg font-semibold mb-2">Authentication Failed</div>
+                                        <p class="text-slate-600">Please refresh the page to try again</p>
+                                    </div>
+                                `;
+                            }
+                        }
+                    });
+                });
+            },
+            
+            // Setup real-time listeners for Firebase collections
+            setupRealtimeListeners() {
+                const collections = ['properties', 'rooms', 'guests', 'assignments'];
+                
+                collections.forEach(collectionName => {
+                    const collectionRef = collection(this.db, `artifacts/${this.appId}/public/data/${collectionName}`);
+                    onSnapshot(collectionRef, (snapshot) => {
+                        this.data[collectionName] = snapshot.docs.map(doc => ({ 
+                            id: doc.id, 
+                            ...doc.data() 
+                        }));
+                        this.renderAll();
+                    }, (error) => {
+                        console.error(`Error listening to ${collectionName}:`, error);
+                    });
+                });
+                
+                // Load sample data if none exists
+                setTimeout(() => {
+                    if (this.data.properties.length === 0) {
+                        this.loadSampleData();
+                    }
+                    this.showSection('overview');
+                    this.hideLoading();
+                }, 1500);
+            },
+            
+            renderAll() {
+                // Only render if we have a current section visible
+                const visibleSection = document.querySelector('main section:not(.hidden)');
+                if (visibleSection) {
+                    this.renderSection(visibleSection.id);
+                }
+            },
+            
+            async loadSampleData() {
+                // Sample properties
+                await this.addProperty({ name: 'Main House', address: '123 Family Lane' });
+                await this.addProperty({ name: 'Guest Cottage', address: '125 Family Lane' });
+                
+                // Wait a bit for properties to be created
+                setTimeout(async () => {
+                    if (this.data.properties.length >= 2) {
+                        // Sample rooms
+                        await this.addRoom({ 
+                            propertyId: this.data.properties[0].id, 
+                            name: 'Master Bedroom', 
+                            capacity: 2, 
+                            bedType: 'King', 
+                            roomType: 'Bedroom' 
+                        });
+                        await this.addRoom({ 
+                            propertyId: this.data.properties[0].id, 
+                            name: 'Guest Room 1', 
+                            capacity: 2, 
+                            bedType: 'Queen', 
+                            roomType: 'Bedroom' 
+                        });
+                        await this.addRoom({ 
+                            propertyId: this.data.properties[1].id, 
+                            name: 'Cottage Bedroom', 
+                            capacity: 4, 
+                            bedType: 'Bunk', 
+                            roomType: 'Bedroom' 
+                        });
+                        
+                        // Sample guests
+                        await this.addGuest({ name: 'John Smith', family: 'Smith Family' });
+                        await this.addGuest({ name: 'Jane Smith', family: 'Smith Family' });
+                        await this.addGuest({ name: 'Bob Johnson', family: 'Johnson Family' });
+                    }
+                }, 1000);
+            },
+            
+            hideLoading() {
+                setTimeout(() => {
+                    document.getElementById('loading-overlay').classList.add('hidden');
+                }, 1000);
+            },
+            
+            bindEvents() {
+                // Form submissions
+                document.getElementById('property-form').addEventListener('submit', (e) => this.handlePropertySubmit(e));
+                document.getElementById('room-form').addEventListener('submit', (e) => this.handleRoomSubmit(e));
+                document.getElementById('guest-form').addEventListener('submit', (e) => this.handleGuestSubmit(e));
+                
+                // Modal events
+                document.getElementById('modal-cancel-delete').addEventListener('click', () => this.hideDeleteModal());
+            },
+            
+            showSection(sectionId) {
+                // Hide all sections
+                document.querySelectorAll('main section').forEach(section => {
+                    section.classList.add('hidden');
+                });
+                
+                // Show selected section
+                document.getElementById(sectionId).classList.remove('hidden');
+                
+                // Update navigation
+                document.querySelectorAll('nav button').forEach(btn => {
+                    btn.classList.remove('nav-active');
+                });
+                document.querySelectorAll(`button[onclick="app.showSection('${sectionId}')"]`).forEach(btn => {
+                    btn.classList.add('nav-active');
+                });
+                
+                // Render content for the section
+                this.renderSection(sectionId);
+            },
+            
+            renderSection(sectionId) {
+                switch(sectionId) {
+                    case 'overview':
+                        this.renderOverview();
+                        break;
+                    case 'properties':
+                        this.renderProperties();
+                        break;
+                    case 'accommodations':
+                        this.renderRooms();
+                        break;
+                    case 'guests':
+                        this.renderGuests();
+                        break;
+                    case 'assignments':
+                        this.renderAssignments();
+                        break;
+                    case 'tasks':
+                        this.renderTasks();
+                        break;
+                }
+            },
+            
+            renderOverview() {
+                // Update statistics
+                document.getElementById('stat-properties').textContent = this.data.properties.length;
+                document.getElementById('stat-rooms').textContent = this.data.rooms.length;
+                document.getElementById('stat-guests').textContent = this.data.guests.length;
+                document.getElementById('stat-tasks').textContent = this.getPendingTasksCount();
+                
+                // Render assignments overview
+                const assignmentsContainer = document.getElementById('overview-assignments');
+                const assignments = this.getAssignmentDetails();
+                
+                if (assignments.length === 0) {
+                    assignmentsContainer.innerHTML = `
+                        <div class="text-center py-8 text-slate-500">
+                            <svg class="w-12 h-12 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <p>No assignments yet. Start by adding properties, rooms, and guests.</p>
+                        </div>
+                    `;
+                } else {
+                    assignmentsContainer.innerHTML = assignments.map(assignment => `
+                        <div class="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-slate-200">
+                            <div class="flex items-center space-x-4">
+                                <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                    ${assignment.guest.name.charAt(0)}
+                                </div>
+                                <div>
+                                    <p class="font-semibold text-slate-800">${assignment.guest.name}</p>
+                                    <p class="text-sm text-slate-600">${assignment.guest.family || 'Individual guest'}</p>
+                                </div>
+                            </div>
+                            <div class="text-right">
+                                <p class="font-medium text-slate-800">${assignment.room.name}</p>
+                                <p class="text-sm text-slate-500">${assignment.property.name}</p>
+                            </div>
+                        </div>
+                    `).join('');
+                }
+            },
+            
+            renderProperties() {
+                const container = document.getElementById('property-list');
+                
+                if (this.data.properties.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12 text-slate-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">No properties added yet</p>
+                            <p>Add your first property to get started</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = this.data.properties.map(property => {
+                    const roomCount = this.data.rooms.filter(r => r.propertyId === property.id).length;
+                    return `
+                        <div class="glass-card rounded-2xl p-6 hover-lift">
+                            <div class="flex items-start justify-between">
+                                <div class="flex-1">
+                                    <h3 class="text-xl font-semibold text-slate-800 mb-2">${property.name}</h3>
+                                    ${property.address ? `<p class="text-slate-600 mb-3">${property.address}</p>` : ''}
+                                    <div class="flex items-center space-x-4 text-sm text-slate-500">
+                                        <span class="flex items-center">
+                                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                                            </svg>
+                                            ${roomCount} room${roomCount !== 1 ? 's' : ''}
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="app.editProperty(${property.id})" class="px-4 py-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+                                        Edit
+                                    </button>
+                                    <button onclick="app.deleteProperty(${property.id})" class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium transition-colors">
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                // Update room form property dropdown
+                this.updatePropertyDropdown();
+            },
+            
+            renderRooms() {
+                const container = document.getElementById('room-list');
+                
+                if (this.data.rooms.length === 0) {
+                    container.innerHTML = `
+                        <div class="col-span-full text-center py-12 text-slate-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">No rooms added yet</p>
+                            <p>Add rooms to your properties to accommodate guests</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = this.data.rooms.map(room => {
+                    const property = this.data.properties.find(p => p.id === room.propertyId);
+                    const assignedGuests = this.data.assignments.filter(a => a.roomId === room.id).length;
+                    const isAtCapacity = assignedGuests >= room.capacity;
+                    
+                    return `
+                        <div class="glass-card rounded-2xl p-6 hover-lift">
+                            <div class="flex items-start justify-between mb-4">
+                                <div class="flex-1">
+                                    <h3 class="text-lg font-semibold text-slate-800">${room.name}</h3>
+                                    <p class="text-slate-600 text-sm">${property?.name || 'Unknown Property'}</p>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="app.editRoom(${room.id})" class="text-indigo-600 hover:text-indigo-800 text-sm font-medium">Edit</button>
+                                    <button onclick="app.deleteRoom(${room.id})" class="text-red-600 hover:text-red-800 text-sm font-medium">Delete</button>
+                                </div>
+                            </div>
+                            
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between text-sm">
+                                    <span class="text-slate-600">Capacity:</span>
+                                    <span class="font-medium ${isAtCapacity ? 'text-red-600' : 'text-green-600'}">${assignedGuests}/${room.capacity} guests</span>
+                                </div>
+                                
+                                <div class="w-full bg-slate-200 rounded-full h-2">
+                                    <div class="${isAtCapacity ? 'capacity-full' : 'capacity-indicator'} h-2 rounded-full transition-all" 
+                                         style="width: ${(assignedGuests / room.capacity) * 100}%"></div>
+                                </div>
+                                
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-slate-600">Bed Type:</span>
+                                        <span class="ml-2 font-medium">${room.bedType}</span>
+                                    </div>
+                                    ${room.roomType ? `
+                                        <div>
+                                            <span class="text-slate-600">Type:</span>
+                                            <span class="ml-2 font-medium">${room.roomType}</span>
+                                        </div>
+                                    ` : ''}
+                                </div>
+                                
+                                <div class="pt-2 border-t border-slate-200">
+                                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                                        isAtCapacity ? 'bg-red-100 text-red-800' : 
+                                        assignedGuests > 0 ? 'bg-yellow-100 text-yellow-800' : 
+                                        'bg-green-100 text-green-800'
+                                    }">
+                                        ${isAtCapacity ? 'Full' : assignedGuests > 0 ? 'Partially Occupied' : 'Available'}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+                
+                this.updatePropertyDropdown();
+            },
+            
+            renderGuests() {
+                const container = document.getElementById('guest-list');
+                
+                if (this.data.guests.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-12 text-slate-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">No guests added yet</p>
+                            <p>Add guests to start making room assignments</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                container.innerHTML = this.data.guests.map(guest => {
+                    const assignment = this.data.assignments.find(a => a.guestId === guest.id);
+                    const room = assignment ? this.data.rooms.find(r => r.id === assignment.roomId) : null;
+                    const property = room ? this.data.properties.find(p => p.id === room.propertyId) : null;
+                    
+                    return `
+                        <div class="glass-card rounded-2xl p-6 hover-lift">
+                            <div class="flex items-start justify-between">
+                                <div class="flex items-center space-x-4">
+                                    <div class="w-12 h-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white font-semibold">
+                                        ${guest.name.charAt(0)}
+                                    </div>
+                                    <div>
+                                        <h3 class="text-lg font-semibold text-slate-800">${guest.name}</h3>
+                                        ${guest.family ? `<p class="text-slate-600">${guest.family}</p>` : ''}
+                                        ${assignment ? `
+                                            <div class="mt-2">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                                    Assigned to ${room.name} (${property.name})
+                                                </span>
+                                            </div>
+                                        ` : `
+                                            <div class="mt-2">
+                                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                                                    Not Assigned
+                                                </span>
+                                            </div>
+                                        `}
+                                    </div>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <button onclick="app.editGuest(${guest.id})" class="px-4 py-2 text-sm text-indigo-600 hover:text-indigo-800 font-medium">Edit</button>
+                                    <button onclick="app.deleteGuest(${guest.id})" class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium">Delete</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            },
+            
+            renderAssignments() {
+                const container = document.getElementById('assignment-list');
+                const unassignedGuests = this.data.guests.filter(g => 
+                    !this.data.assignments.find(a => a.guestId === g.id)
+                );
+                
+                container.innerHTML = `
+                    ${unassignedGuests.length > 0 ? `
+                        <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-xl font-semibold text-slate-800 mb-4">Unassigned Guests</h3>
+                            <div class="space-y-4">
+                                ${unassignedGuests.map(guest => `
+                                    <div class="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-slate-200">
+                                        <div class="flex items-center space-x-4">
+                                            <div class="w-10 h-10 bg-gradient-to-r from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                                ${guest.name.charAt(0)}
+                                            </div>
+                                            <div>
+                                                <p class="font-semibold text-slate-800">${guest.name}</p>
+                                                ${guest.family ? `<p class="text-sm text-slate-600">${guest.family}</p>` : ''}
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center space-x-3">
+                                            ${this.renderAssignmentForm(guest.id)}
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${this.data.assignments.length > 0 ? `
+                        <div class="glass-card rounded-2xl p-6">
+                            <h3 class="text-xl font-semibold text-slate-800 mb-4">Current Assignments</h3>
+                            <div class="space-y-4">
+                                ${this.data.assignments.map(assignment => {
+                                    const guest = this.data.guests.find(g => g.id === assignment.guestId);
+                                    const room = this.data.rooms.find(r => r.id === assignment.roomId);
+                                    const property = this.data.properties.find(p => p.id === assignment.propertyId);
+                                    
+                                    return `
+                                        <div class="flex items-center justify-between p-4 bg-white/50 rounded-xl border border-slate-200">
+                                            <div class="flex items-center space-x-4">
+                                                <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-blue-500 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                                                    ${guest?.name.charAt(0)}
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold text-slate-800">${guest?.name}</p>
+                                                    <p class="text-sm text-slate-600">${room?.name} in ${property?.name}</p>
+                                                </div>
+                                            </div>
+                                            <button onclick="app.removeAssignment(${assignment.id})" class="px-4 py-2 text-sm text-red-600 hover:text-red-800 font-medium">
+                                                Remove
+                                            </button>
+                                        </div>
+                                    `;
+                                }).join('')}
+                            </div>
+                        </div>
+                    ` : ''}
+                    
+                    ${unassignedGuests.length === 0 && this.data.assignments.length === 0 ? `
+                        <div class="text-center py-12 text-slate-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">No assignments to display</p>
+                            <p>Add guests and rooms to start making assignments</p>
+                        </div>
+                    ` : ''}
+                `;
+            },
+            
+            renderAssignmentForm(guestId) {
+                return `
+                    <form onsubmit="app.handleAssignment(event, ${guestId})" class="flex items-center space-x-2">
+                        <select name="propertyId" onchange="app.updateRoomDropdown(this, ${guestId})" required class="px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                            <option value="">Select Property</option>
+                            ${this.data.properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('')}
+                        </select>
+                        <select name="roomId" id="room-select-${guestId}" required disabled class="px-3 py-2 border border-slate-200 rounded-lg text-sm">
+                            <option value="">Select Room</option>
+                        </select>
+                        <button type="submit" class="px-4 py-2 bg-gradient-to-r from-indigo-500 to-purple-600 text-white rounded-lg text-sm font-medium hover:shadow-lg transition-all">
+                            Assign
+                        </button>
+                    </form>
+                `;
+            },
+            
+            renderTasks() {
+                const container = document.getElementById('tasks-list');
+                // For now, show a placeholder for tasks functionality
+                container.innerHTML = `
+                    <div class="glass-card rounded-2xl p-6">
+                        <h3 class="text-xl font-semibold text-slate-800 mb-4">Room Preparation Tasks</h3>
+                        <div class="text-center py-8 text-slate-500">
+                            <svg class="w-16 h-16 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
+                            <p class="text-lg font-medium mb-2">Task Management Coming Soon</p>
+                            <p>Room preparation and task tracking will be available here</p>
+                        </div>
+                    </div>
+                `;
+            },
+            
+            // Form handlers
+            async handlePropertySubmit(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                
+                await this.addProperty(data);
+                e.target.reset();
+                this.showToast('Property added successfully!');
+            },
+            
+            async handleRoomSubmit(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                data.capacity = parseInt(data.capacity);
+                data.propertyId = data.propertyId; // Keep as string for Firebase
+                
+                await this.addRoom(data);
+                e.target.reset();
+                this.showToast('Room added successfully!');
+            },
+            
+            async handleGuestSubmit(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const data = Object.fromEntries(formData.entries());
+                
+                await this.addGuest(data);
+                e.target.reset();
+                this.showToast('Guest added successfully!');
+            },
+            
+            async handleAssignment(e, guestId) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const propertyId = formData.get('propertyId');
+                const roomId = formData.get('roomId');
+                
+                await this.addAssignment({ guestId, roomId, propertyId });
+                this.showToast('Guest assigned successfully!');
+            },
+            
+            // Firebase data manipulation methods
+            async addProperty(data) {
+                if (!this.userId) return;
+                try {
+                    await addDoc(collection(this.db, `artifacts/${this.appId}/public/data/properties`), data);
+                } catch (error) {
+                    console.error('Error adding property:', error);
+                    this.showToast('Error adding property', 'error');
+                }
+            },
+            
+            async addRoom(data) {
+                if (!this.userId) return;
+                try {
+                    await addDoc(collection(this.db, `artifacts/${this.appId}/public/data/rooms`), data);
+                } catch (error) {
+                    console.error('Error adding room:', error);
+                    this.showToast('Error adding room', 'error');
+                }
+            },
+            
+            async addGuest(data) {
+                if (!this.userId) return;
+                try {
+                    await addDoc(collection(this.db, `artifacts/${this.appId}/public/data/guests`), data);
+                } catch (error) {
+                    console.error('Error adding guest:', error);
+                    this.showToast('Error adding guest', 'error');
+                }
+            },
+            
+            async addAssignment(data) {
+                if (!this.userId) return;
+                try {
+                    // Check if guest is already assigned
+                    const existingAssignment = this.data.assignments.find(a => a.guestId === data.guestId);
+                    if (existingAssignment) {
+                        await this.removeAssignment(existingAssignment.id);
+                    }
+                    
+                    // Check room capacity
+                    const room = this.data.rooms.find(r => r.id === data.roomId);
+                    const currentAssignments = this.data.assignments.filter(a => a.roomId === data.roomId).length;
+                    
+                    if (currentAssignments >= room.capacity) {
+                        this.showToast('Room is at full capacity!', 'error');
+                        return;
+                    }
+                    
+                    await addDoc(collection(this.db, `artifacts/${this.appId}/public/data/assignments`), data);
+                } catch (error) {
+                    console.error('Error adding assignment:', error);
+                    this.showToast('Error creating assignment', 'error');
+                }
+            },
+            
+            async removeAssignment(id) {
+                if (!this.userId) return;
+                try {
+                    await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/assignments`, id));
+                    this.showToast('Assignment removed successfully!');
+                } catch (error) {
+                    console.error('Error removing assignment:', error);
+                    this.showToast('Error removing assignment', 'error');
+                }
+            },
+            
+            async deleteProperty(id) {
+                if (!this.userId) return;
+                try {
+                    // Also delete associated rooms and assignments
+                    const roomIds = this.data.rooms.filter(r => r.propertyId === id).map(r => r.id);
+                    
+                    // Delete assignments first
+                    for (const assignment of this.data.assignments.filter(a => roomIds.includes(a.roomId))) {
+                        await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id));
+                    }
+                    
+                    // Delete rooms
+                    for (const roomId of roomIds) {
+                        await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/rooms`, roomId));
+                    }
+                    
+                    // Delete property
+                    await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/properties`, id));
+                    
+                    this.showToast('Property and associated rooms deleted!');
+                } catch (error) {
+                    console.error('Error deleting property:', error);
+                    this.showToast('Error deleting property', 'error');
+                }
+            },
+            
+            async deleteRoom(id) {
+                if (!this.userId) return;
+                try {
+                    // Also delete associated assignments
+                    for (const assignment of this.data.assignments.filter(a => a.roomId === id)) {
+                        await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id));
+                    }
+                    
+                    await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/rooms`, id));
+                    this.showToast('Room and assignments deleted!');
+                } catch (error) {
+                    console.error('Error deleting room:', error);
+                    this.showToast('Error deleting room', 'error');
+                }
+            },
+            
+            async deleteGuest(id) {
+                if (!this.userId) return;
+                try {
+                    // Also delete associated assignments
+                    for (const assignment of this.data.assignments.filter(a => a.guestId === id)) {
+                        await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id));
+                    }
+                    
+                    await deleteDoc(doc(this.db, `artifacts/${this.appId}/public/data/guests`, id));
+                    this.showToast('Guest and assignments deleted!');
+                } catch (error) {
+                    console.error('Error deleting guest:', error);
+                    this.showToast('Error deleting guest', 'error');
+                }
+            },
+            
+            async updateProperty(id, data) {
+                if (!this.userId) return;
+                try {
+                    await updateDoc(doc(this.db, `artifacts/${this.appId}/public/data/properties`, id), data);
+                    this.showToast('Property updated successfully!');
+                } catch (error) {
+                    console.error('Error updating property:', error);
+                    this.showToast('Error updating property', 'error');
+                }
+            },
+            
+            async updateRoom(id, data) {
+                if (!this.userId) return;
+                try {
+                    await updateDoc(doc(this.db, `artifacts/${this.appId}/public/data/rooms`, id), data);
+                    this.showToast('Room updated successfully!');
+                } catch (error) {
+                    console.error('Error updating room:', error);
+                    this.showToast('Error updating room', 'error');
+                }
+            },
+            
+            async updateGuest(id, data) {
+                if (!this.userId) return;
+                try {
+                    await updateDoc(doc(this.db, `artifacts/${this.appId}/public/data/guests`, id), data);
+                    this.showToast('Guest updated successfully!');
+                } catch (error) {
+                    console.error('Error updating guest:', error);
+                    this.showToast('Error updating guest', 'error');
+                }
+            },
+            
+            // Utility methods
+            updatePropertyDropdown() {
+                const selects = document.querySelectorAll('select[name="propertyId"]');
+                const options = this.data.properties.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+                selects.forEach(select => {
+                    const currentValue = select.value;
+                    select.innerHTML = `<option value="">Select Property</option>${options}`;
+                    select.value = currentValue;
+                });
+            },
+            
+            updateRoomDropdown(propertySelect, guestId) {
+                const propertyId = propertySelect.value;
+                const roomSelect = document.getElementById(`room-select-${guestId}`);
+                
+                if (!propertyId) {
+                    roomSelect.innerHTML = '<option value="">Select Room</option>';
+                    roomSelect.disabled = true;
+                    return;
+                }
+                
+                const availableRooms = this.data.rooms.filter(r => {
+                    if (r.propertyId !== propertyId) return false;
+                    const assignedCount = this.data.assignments.filter(a => a.roomId === r.id).length;
+                    return assignedCount < r.capacity;
+                });
+                
+                const options = availableRooms.map(r => `<option value="${r.id}">${r.name} (${this.data.assignments.filter(a => a.roomId === r.id).length}/${r.capacity})</option>`).join('');
+                roomSelect.innerHTML = `<option value="">Select Room</option>${options}`;
+                roomSelect.disabled = false;
+            },
+            
+            getAssignmentDetails() {
+                return this.data.assignments.map(assignment => {
+                    const guest = this.data.guests.find(g => g.id === assignment.guestId);
+                    const room = this.data.rooms.find(r => r.id === assignment.roomId);
+                    const property = this.data.properties.find(p => p.id === assignment.propertyId);
+                    return { assignment, guest, room, property };
+                });
+            },
+            
+            getPendingTasksCount() {
+                // Placeholder for task counting
+                return 0;
+            },
+            
+            sortRooms(criteria) {
+                // Implementation for sorting rooms
+                this.renderRooms();
+            },
+            
+            showToast(message, type = 'success') {
+                const toast = document.getElementById('success-toast');
+                const messageEl = document.getElementById('toast-message');
+                
+                messageEl.textContent = message;
+                toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-40 animate-slide-up ${
+                    type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'
+                }`;
+                
+                toast.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            },
+            
+            hideDeleteModal() {
+                document.getElementById('delete-modal').classList.add('hidden');
+            },
+            
+            showDeleteModal(type, id) {
+                const modal = document.getElementById('delete-modal');
+                const confirmBtn = document.getElementById('modal-confirm-delete');
+                
+                // Remove existing event listeners by cloning the button
+                const newConfirmBtn = confirmBtn.cloneNode(true);
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+                
+                newConfirmBtn.addEventListener('click', () => {
+                    if (type === 'property') this.deleteProperty(id);
+                    else if (type === 'room') this.deleteRoom(id);
+                    else if (type === 'guest') this.deleteGuest(id);
+                    this.hideDeleteModal();
+                });
+                
+                modal.classList.remove('hidden');
+            },
+            
+            // Edit functionality
+            async editProperty(id) {
+                const property = this.data.properties.find(p => p.id === id);
+                if (!property) return;
+                
+                // Simple prompt-based editing for now
+                const newName = prompt('Edit property name:', property.name);
+                const newAddress = prompt('Edit property address:', property.address || '');
+                
+                if (newName && newName.trim()) {
+                    const updateData = { name: newName.trim() };
+                    if (newAddress !== null) updateData.address = newAddress.trim();
+                    await this.updateProperty(id, updateData);
+                }
+            },
+            
+            async editRoom(id) {
+                const room = this.data.rooms.find(r => r.id === id);
+                if (!room) return;
+                
+                // Simple prompt-based editing for now
+                const newName = prompt('Edit room name:', room.name);
+                const newCapacity = prompt('Edit room capacity:', room.capacity);
+                
+                if (newName && newName.trim()) {
+                    const updateData = { name: newName.trim() };
+                    if (newCapacity && !isNaN(parseInt(newCapacity))) {
+                        updateData.capacity = parseInt(newCapacity);
+                    }
+                    await this.updateRoom(id, updateData);
+                }
+            },
+            
+            async editGuest(id) {
+                const guest = this.data.guests.find(g => g.id === id);
+                if (!guest) return;
+                
+                // Simple prompt-based editing for now
+                const newName = prompt('Edit guest name:', guest.name);
+                const newFamily = prompt('Edit family name:', guest.family || '');
+                
+                if (newName && newName.trim()) {
+                    const updateData = { name: newName.trim() };
+                    if (newFamily !== null) updateData.family = newFamily.trim();
+                    await this.updateGuest(id, updateData);
+                }
+            },
+            
+            hideEditForm(type) {
+                // Placeholder for hiding edit forms
+                console.log(`Hide edit form for ${type}`);
+            }
+        };
+
+        // Make app globally available and initialize
+        window.app = app;
+        
+        // Initialize the app when DOM is loaded
+        document.addEventListener('DOMContentLoaded', () => {
+            app.init();
+        });
     </script>
 </body>
 </html>
