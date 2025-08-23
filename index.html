@@ -4,498 +4,149 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Guest Accommodations</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #f0f2f5;
-            color: #333;
-            line-height: 1.6;
-        }
-        
-        header {
-            background-color: #4CAF50;
-            color: white;
-            padding: 1.5rem;
-            text-align: center;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
-        
-        nav {
-            display: flex;
-            justify-content: center;
-            background-color: #555;
-            padding: 0.5rem;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-        }
-        
-        nav button {
-            background-color: #666;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.25rem;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease, transform 0.1s ease;
-        }
-        
-        nav button:hover {
-            background-color: #888;
-            transform: translateY(-2px);
-        }
-        
-        main {
-            padding: 2rem;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        
-        section {
-            background-color: white;
-            padding: 2rem;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            margin-bottom: 2rem;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-        
-        section:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
-        }
-        
-        .hidden {
-            display: none;
-        }
-        
-        h2 {
-            color: #4CAF50;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-bottom: 2rem;
-        }
-        
-        form input, form select, form textarea {
-            padding: 0.75rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            font-size: 1rem;
-            width: 100%;
-            box-sizing: border-box;
-        }
-        
-        form button {
-            grid-column: 1 / -1;
-            background-color: #4CAF50;
-            color: white;
-            padding: 1rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: background-color 0.3s ease;
-        }
-        
-        form button:hover {
-            background-color: #45a049;
-        }
-        
-        ul {
-            list-style: none;
-            padding: 0;
-        }
-        
-        li {
-            background-color: #f9f9f9;
-            padding: 1.25rem;
-            margin-bottom: 0.75rem;
-            border-radius: 8px;
-            border-left: 5px solid #4CAF50;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-        }
-        
-        .delete-btn {
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            padding: 0.5rem 1rem;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .delete-btn:hover {
-            background-color: #c82333;
-        }
-
-        /* New styles for prep list management */
-        .prep-list-container {
-            grid-column: 1 / -1;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            padding: 1rem;
-            margin-top: -1rem;
-            margin-bottom: 1rem;
-        }
-
-        .prep-list-input {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-
-        .prep-list-input input {
-            flex-grow: 1;
-        }
-
-        .prep-list-input button {
-            width: auto;
-            grid-column: auto;
-            padding: 0.5rem 1rem;
-        }
-
-        .prep-list {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .prep-list li {
-            padding: 0.5rem;
-            margin-bottom: 0.5rem;
-            background-color: #e6e6e6;
-            border-radius: 3px;
-            border-left: 3px solid #666;
-            font-size: 0.9rem;
-        }
-
-        .prep-list-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .prep-list-item button {
-            background: none;
-            border: none;
-            color: #dc3545;
-            cursor: pointer;
-            font-size: 1.2rem;
-            line-height: 1;
-            padding: 0;
-        }
-
-        .sort-controls {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1rem;
-            align-items: center;
-        }
-        
-        .report-tabs {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .report-tabs button {
-            padding: 0.75rem 1.5rem;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #eee;
-            cursor: pointer;
-        }
-        
-        .report-tabs button.active-tab {
-            background-color: #4CAF50;
-            color: white;
-            border-color: #4CAF50;
-        }
-        
-        #calendar-controls {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 20px;
-            margin-bottom: 1rem;
-        }
-        
-        #calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 10px;
-            text-align: center;
-        }
-        
-        .calendar-day {
-            background-color: #f9f9f9;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            padding: 10px;
-            min-height: 100px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            box-shadow: inset 0 0 5px rgba(0,0,0,0.05);
-        }
-        
-        .calendar-day.current-month {
-            background-color: #fff;
-        }
-        
-        .calendar-day h5 {
-            margin: 0;
-            font-size: 1.1rem;
-            color: #555;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
-            margin-bottom: 5px;
-        }
-        
-        .assignment-item {
-            font-size: 0.85rem;
-            background-color: #e6f3e6;
-            color: #333;
-            padding: 5px;
-            border-radius: 3px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Dashboard Tile Styles */
-        #dashboard-tiles {
-            display: grid;
-            gap: 2rem;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        }
-
-        .house-tile {
-            background-color: #f9f9f9;
-            border: 1px solid #e0e0e0;
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        }
-
-        .house-title {
-            color: #2e7d32;
-            font-size: 1.5rem;
-            margin-top: 0;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 0.5rem;
-            margin-bottom: 1rem;
-        }
-
-        .room-grid {
-            display: grid;
-            gap: 1rem;
-        }
-
-        .room-tile {
-            background-color: #fff;
-            padding: 1rem;
-            border-radius: 8px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
-            border-left: 4px solid #4CAF50;
-        }
-
-        .room-tile p {
-            margin: 0;
-            font-size: 1rem;
-        }
-
-        .room-tile .guest-info {
-            font-weight: bold;
-            color: #333;
-        }
-
-        .room-tile .status-available {
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        .room-tile .status-occupied {
-            color: #d32f2f;
-            font-weight: bold;
-        }
-
-        .guest-status-list {
-            margin-top: 2rem;
-        }
-        .guest-status-list ul {
-            list-style-type: none;
-            padding: 0;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 0.5rem;
-        }
-        .guest-status-list li {
-            padding: 10px;
-            border-radius: 5px;
-            background-color: #f5f5f5;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .status-badge {
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            color: white;
-            font-weight: bold;
-        }
-        .status-badge.assigned {
-            background-color: #388e3c;
-        }
-        .status-badge.not-assigned {
-            background-color: #f44336;
-        }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     </style>
     <!-- Firebase SDKs -->
     <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"></script>
     <script type="module" src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"></script>
 </head>
-<body>
-    <header>
-        <h1>House Guests</h1>
+<body class="bg-gray-100 text-gray-800">
+    <header class="bg-green-600 text-white p-4 text-center shadow-lg">
+        <h1 class="text-2xl font-bold">House Guests</h1>
     </header>
 
-    <nav>
-        <button onclick="showSection('dashboard')">Dashboard</button>
-        <button onclick="showSection('houses')">Houses</button>
-        <button onclick="showSection('rooms')">Rooms</button>
-        <button onclick="showSection('guests')">Guests</button>
-        <button onclick="showSection('assignments')">Assign Guests</button>
-        <button onclick="showSection('reports')">Reports</button>
+    <nav class="flex flex-wrap justify-center bg-gray-700 p-2 gap-2">
+        <button onclick="showSection('dashboard')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Dashboard</button>
+        <button onclick="showSection('houses')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Houses</button>
+        <button onclick="showSection('rooms')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Rooms</button>
+        <button onclick="showSection('guests')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Guests</button>
+        <button onclick="showSection('assignments')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Assign Guests</button>
+        <button onclick="showSection('reports')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Reports</button>
     </nav>
 
-    <main>
+    <main class="p-4 md:p-8 max-w-7xl mx-auto">
         <!-- Dashboard Section -->
-        <section id="dashboard" class="active">
-            <h2>Dashboard</h2>
-            <div id="dashboard-tiles"></div>
-            <div id="dashboard-guests-list" class="guest-status-list"></div>
-            <div id="user-info"></div>
+        <section id="dashboard" class="bg-white p-6 md:p-8 rounded-xl shadow-lg transition-transform duration-300 transform hover:scale-105">
+            <h2 class="text-2xl font-bold text-green-600 border-b-2 border-gray-200 pb-2 mb-4">Dashboard</h2>
+            <div id="dashboard-tiles" class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"></div>
+            <div id="dashboard-guests-list" class="mt-8"></div>
+            <div id="user-info" class="mt-6 text-sm text-gray-500"></div>
         </section>
 
         <!-- Houses Section -->
-        <section id="houses" class="hidden">
-            <h2>Manage Houses</h2>
-            <form id="house-form">
-                <input type="text" id="house-name" placeholder="House Name" required>
-                <button type="submit">Add House</button>
+        <section id="houses" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-lg transition-transform duration-300 transform hover:scale-105">
+            <h2 class="text-2xl font-bold text-green-600 border-b-2 border-gray-200 pb-2 mb-4">Manage Houses</h2>
+            <form id="house-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <input type="text" id="house-name" placeholder="House Name" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button type="submit" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">Add House</button>
             </form>
-            <ul id="house-list"></ul>
+            <ul id="house-list" class="space-y-3"></ul>
         </section>
 
         <!-- Rooms Section -->
-        <section id="rooms" class="hidden">
-            <h2>Manage Rooms</h2>
-            <form id="room-form">
-                <select id="room-house" required>
+        <section id="rooms" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-lg transition-transform duration-300 transform hover:scale-105">
+            <h2 class="text-2xl font-bold text-green-600 border-b-2 border-gray-200 pb-2 mb-4">Manage Rooms</h2>
+            <form id="room-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <select id="room-house" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                     <option value="" disabled selected>Select a House</option>
                 </select>
-                <input type="text" id="room-name" placeholder="Room Name (e.g., Master Bedroom)" required>
-                <input type="number" id="room-capacity" placeholder="Capacity (e.g., 2)" required min="1">
-                <input type="text" id="room-bed-type" placeholder="Bed Type (e.g., King, Queen)" required>
-                <!-- New UI for adding prep list items -->
-                <div class="prep-list-container">
-                    <p>Prep Needed:</p>
-                    <div class="prep-list-input">
-                        <input type="text" id="room-prep-item" placeholder="e.g., Buy new sheets">
-                        <button type="button" onclick="addPrepItem()">Add</button>
+                <input type="text" id="room-name" placeholder="Room Name (e.g., Master Bedroom)" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <input type="number" id="room-capacity" placeholder="Capacity (e.g., 2)" required min="1" class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <select id="room-bed-type" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="" disabled selected>Select Bed Type</option>
+                    <option value="king">King</option>
+                    <option value="queen">Queen</option>
+                    <option value="full">Full</option>
+                    <option value="twin">Twin</option>
+                    <option value="none">None</option>
+                </select>
+                <div class="col-span-1 md:col-span-2 bg-gray-100 rounded-lg p-4 -mt-4 mb-4">
+                    <p class="font-medium mb-2">Prep Needed:</p>
+                    <div class="flex gap-2 mb-2">
+                        <input type="text" id="room-prep-item" placeholder="e.g., Buy new sheets" class="flex-grow p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <button type="button" onclick="addPrepItem()" class="bg-gray-400 text-white font-bold px-4 rounded-lg hover:bg-gray-500 transition-colors duration-200">Add</button>
                     </div>
-                    <ul id="prep-list" class="prep-list"></ul>
+                    <ul id="prep-list" class="list-disc list-inside space-y-1"></ul>
                 </div>
-                <!-- End new UI -->
-                <button type="submit">Add Room</button>
+                <button type="submit" class="col-span-1 md:col-span-2 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">Add Room</button>
             </form>
-            <!-- Sort controls for the room list -->
-            <div class="sort-controls">
-                <span>Sort by:</span>
-                <button onclick="sortRooms('houseName')">House</button>
-                <button onclick="sortRooms('name')">Room</button>
+            <div class="flex items-center gap-4 mb-4">
+                <span class="font-medium">Sort by:</span>
+                <button onclick="sortRooms('houseName')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-1 px-3 rounded-md transition-colors duration-200">House</button>
+                <button onclick="sortRooms('name')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-1 px-3 rounded-md transition-colors duration-200">Room</button>
             </div>
-            <ul id="room-list"></ul>
+            <ul id="room-list" class="space-y-3"></ul>
         </section>
 
         <!-- Guests Section -->
-        <section id="guests" class="hidden">
-            <h2>Manage Guests & Families</h2>
-            <form id="guest-form">
-                <input type="text" id="guest-name" placeholder="Guest's Name" required>
-                <input type="text" id="guest-family" placeholder="Family Name (e.g., Smith Family)">
-                <button type="submit">Add Guest</button>
+        <section id="guests" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-lg transition-transform duration-300 transform hover:scale-105">
+            <h2 class="text-2xl font-bold text-green-600 border-b-2 border-gray-200 pb-2 mb-4">Manage Guests & Families</h2>
+            <form id="guest-form" class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                <input type="text" id="guest-name" placeholder="Guest's Name" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <input type="text" id="guest-family" placeholder="Family Name (e.g., Smith Family)" class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                <button type="submit" class="col-span-1 md:col-span-2 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">Add Guest</button>
             </form>
-            <ul id="guest-list"></ul>
+            <ul id="guest-list" class="space-y-3"></ul>
         </section>
 
         <!-- Assignments Section -->
-        <section id="assignments" class="hidden">
-            <h2>Assign Guests to Rooms</h2>
-            <form id="assignment-form">
-                <select id="assignment-house" required>
+        <section id="assignments" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-lg transition-transform duration-300 transform hover:scale-105">
+            <h2 class="text-2xl font-bold text-green-600 border-b-2 border-gray-200 pb-2 mb-4">Assign Guests to Rooms</h2>
+            <form id="assignment-form" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+                <select id="assignment-house" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                     <option value="" disabled selected>Select a House</option>
                 </select>
-                <select id="assignment-room" required disabled>
+                <select id="assignment-room" required disabled class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
                     <option value="" disabled selected>Select a Room</option>
                 </select>
-                <select id="assignment-guest" required>
-                    <option value="" disabled selected>Select a Guest or Family</option>
+                <select id="assignment-guest" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                    <option value="" disabled selected>Select a Guest</option>
                 </select>
-                <label for="assignment-start">Start Date:</label>
-                <input type="date" id="assignment-start" required>
-                <label for="assignment-end">End Date:</label>
-                <input type="date" id="assignment-end" required>
-                <button type="submit">Assign</button>
+                <div class="col-span-1 md:col-span-2 lg:col-span-1">
+                    <label for="assignment-start" class="block text-sm font-medium text-gray-700">Start Date:</label>
+                    <input type="date" id="assignment-start" required class="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 w-full">
+                </div>
+                <div class="col-span-1 md:col-span-2 lg:col-span-1">
+                    <label for="assignment-end" class="block text-sm font-medium text-gray-700">End Date:</label>
+                    <input type="date" id="assignment-end" required class="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 w-full">
+                </div>
+                <button type="submit" class="col-span-1 md:col-span-2 lg:col-span-3 bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200">Assign</button>
             </form>
-            <ul id="assignment-list"></ul>
+            <ul id="assignment-list" class="space-y-3"></ul>
         </section>
 
         <!-- Reports Section -->
-        <section id="reports" class="hidden">
-            <h2>Reports</h2>
-            <div class="report-tabs">
-                <button onclick="showReportView('list-view')" class="active-tab">List View</button>
-                <button onclick="showReportView('calendar-view')">Calendar View</button>
+        <section id="reports" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-lg transition-transform duration-300 transform hover:scale-105">
+            <h2 class="text-2xl font-bold text-green-600 border-b-2 border-gray-200 pb-2 mb-4">Reports</h2>
+            <div class="flex gap-4 mb-6">
+                <button onclick="showReportView('list-view')" class="report-tab active-tab bg-green-600 text-white font-medium py-2 px-4 rounded-md">List View</button>
+                <button onclick="showReportView('calendar-view')" class="report-tab bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md">Calendar View</button>
             </div>
 
             <!-- List View Report -->
             <div id="list-view" class="report-content active-report">
-                <h3>All Assignments (List View)</h3>
-                <ul id="reports-list"></ul>
+                <h3 class="text-xl font-semibold mb-4">All Assignments</h3>
+                <ul id="reports-list" class="space-y-3"></ul>
             </div>
 
             <!-- Calendar View Report -->
-            <div id="calendar-view" class="report-content hidden-report">
-                <h3>Assignments (Calendar View)</h3>
-                <div id="calendar-controls">
-                    <button onclick="prevMonth()">Prev</button>
-                    <h4 id="current-month-year"></h4>
-                    <button onclick="nextMonth()">Next</button>
+            <div id="calendar-view" class="report-content hidden-report hidden">
+                <h3 class="text-xl font-semibold mb-4">Assignments (Calendar View)</h3>
+                <div id="calendar-controls" class="flex items-center justify-between mb-4 bg-gray-100 p-2 rounded-lg">
+                    <button onclick="prevMonth()" class="bg-gray-300 text-gray-800 px-3 py-1 rounded-md">&lt; Prev</button>
+                    <h4 id="current-month-year" class="text-lg font-semibold"></h4>
+                    <button onclick="nextMonth()" class="bg-gray-300 text-gray-800 px-3 py-1 rounded-md">Next &gt;</button>
                 </div>
-                <div id="calendar-grid"></div>
+                <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center text-sm"></div>
             </div>
         </section>
     </main>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- Firebase Configuration ---
@@ -508,7 +159,6 @@
             appId: "1:527629164349:web:6eca4e0ce1020d35f56f54"
         };
         const appId = "home-guests";
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
@@ -536,19 +186,19 @@
         const dashboardTiles = document.getElementById('dashboard-tiles');
         const dashboardGuestsList = document.getElementById('dashboard-guests-list');
         const userInfo = document.getElementById('user-info');
-        // New DOM elements for prep list
         const roomPrepItemInput = document.getElementById('room-prep-item');
         const prepListUl = document.getElementById('prep-list');
 
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
-        let tempPrepList = []; // Temporary array to hold prep items before saving a room
+        let tempPrepList = []; 
+        let roomsCache = [];
+        let guestsCache = [];
+        let assignmentsCache = [];
 
         // --- Firebase Auth & Initialization ---
         async function signIn() {
             try {
-                // We're switching to an anonymous sign-in to make the app publicly collaborative.
-                // This bypasses the need for a custom token and a private user-specific data model.
                 await signInAnonymously(auth);
             } catch (error) {
                 console.error("Error during authentication:", error);
@@ -584,14 +234,16 @@
 
         window.showReportView = function(viewId) {
             document.querySelectorAll('.report-content').forEach(view => {
-                view.classList.add('hidden-report');
+                view.classList.add('hidden');
             });
-            document.getElementById(viewId).classList.remove('hidden-report');
+            document.getElementById(viewId).classList.remove('hidden');
 
-            document.querySelectorAll('.report-tabs button').forEach(button => {
-                button.classList.remove('active-tab');
+            document.querySelectorAll('.report-tab').forEach(button => {
+                button.classList.remove('active-tab', 'bg-green-600', 'text-white');
+                button.classList.add('bg-gray-200', 'text-gray-800');
             });
-            document.querySelector(`button[onclick="showReportView('${viewId}')"]`).classList.add('active-tab');
+            document.querySelector(`button[onclick="showReportView('${viewId}')"]`).classList.add('active-tab', 'bg-green-600', 'text-white');
+            document.querySelector(`button[onclick="showReportView('${viewId}')"]`).classList.remove('bg-gray-200', 'text-gray-800');
 
             if (viewId === 'calendar-view') {
                 renderCalendar();
@@ -605,7 +257,6 @@
                 return;
             }
             try {
-                // Change path to a public collection for all users to share data
                 const colRef = collection(db, `artifacts/${appId}/public/data/${collectionName}`);
                 await addDoc(colRef, data);
                 console.log(`Added data to ${collectionName}.`);
@@ -620,7 +271,6 @@
                 return;
             }
             try {
-                // Change path to a public collection for all users to share data
                 const docRef = doc(db, `artifacts/${appId}/public/data/${collectionName}`, docId);
                 await deleteDoc(docRef);
                 console.log(`Deleted data from ${collectionName}.`);
@@ -633,58 +283,63 @@
         function loadData() {
             if (!userId) return;
             setupRealtimeListeners();
-            populateSelects();
-            renderDashboard();
         }
 
         function setupRealtimeListeners() {
+            // Houses
             onSnapshot(collection(db, `artifacts/${appId}/public/data/houses`), (snapshot) => {
                 houseList.innerHTML = '';
                 snapshot.forEach(doc => {
                     const item = { id: doc.id, ...doc.data() };
                     const li = document.createElement('li');
-                    li.innerHTML = `<span>🏡 ${item.name}</span> <button class="delete-btn" onclick="deleteDataWrapper('houses', '${item.id}')">Delete</button>`;
+                    li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center';
+                    li.innerHTML = `<span>🏡 ${item.name}</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="deleteDataWrapper('houses', '${item.id}')">Delete</button>`;
                     houseList.appendChild(li);
                 });
                 populateSelects();
             });
 
+            // Rooms
             onSnapshot(collection(db, `artifacts/${appId}/public/data/rooms`), (snapshot) => {
-                const roomsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                renderRooms(roomsData);
+                roomsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderRooms(roomsCache);
                 populateSelects();
             });
 
+            // Guests
             onSnapshot(collection(db, `artifacts/${appId}/public/data/guests`), (snapshot) => {
                 guestList.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const item = { id: doc.id, ...doc.data() };
+                guestsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                guestsCache.forEach(item => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<span>👤 ${item.name} ${item.family ? `(Family: ${item.family})` : ''}</span> <button class="delete-btn" onclick="deleteDataWrapper('guests', '${item.id}')">Delete</button>`;
+                    li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center';
+                    li.innerHTML = `<span>👤 ${item.name} ${item.family ? `(Family: ${item.family})` : ''}</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="deleteDataWrapper('guests', '${item.id}')">Delete</button>`;
                     guestList.appendChild(li);
                 });
                 populateSelects();
             });
 
+            // Assignments
             onSnapshot(collection(db, `artifacts/${appId}/public/data/assignments`), (snapshot) => {
+                assignmentsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 assignmentList.innerHTML = '';
-                snapshot.forEach(doc => {
-                    const item = { id: doc.id, ...doc.data() };
+                assignmentsCache.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
+                assignmentsCache.forEach(item => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<span>🗓️ ${item.guestName} staying in ${item.roomName} at ${item.houseName} from ${item.startDate} to ${item.endDate}.</span> <button class="delete-btn" onclick="deleteDataWrapper('assignments', '${item.id}')">Delete</button>`;
+                    li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center';
+                    li.innerHTML = `<span>🗓️ ${item.guestName} staying in ${item.roomName} at ${item.houseName} from ${item.startDate} to ${item.endDate}.</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="deleteDataWrapper('assignments', '${item.id}')">Delete</button>`;
                     assignmentList.appendChild(li);
                 });
                 renderReports();
                 renderCalendar();
+                renderDashboard();
             });
         }
         
-        // Wrapper function for `deleteData` to be used with `onclick`
         window.deleteDataWrapper = function(collectionName, docId) {
             deleteData(collectionName, docId);
         };
 
-        // Function to handle adding a prep item to the temporary list
         window.addPrepItem = function() {
             const item = roomPrepItemInput.value.trim();
             if (item) {
@@ -694,21 +349,19 @@
             }
         };
 
-        // Function to remove a prep item from the temporary list
         window.removePrepItem = function(index) {
             tempPrepList.splice(index, 1);
             renderTempPrepList();
         };
 
-        // Renders the temporary prep list UI
         function renderTempPrepList() {
             prepListUl.innerHTML = '';
             tempPrepList.forEach((item, index) => {
                 const li = document.createElement('li');
-                li.className = 'prep-list-item';
+                li.className = 'flex justify-between items-center bg-gray-200 p-2 rounded-md';
                 li.innerHTML = `
                     <span>${item}</span>
-                    <button type="button" onclick="removePrepItem(${index})">
+                    <button type="button" onclick="removePrepItem(${index})" class="text-red-500 hover:text-red-700 font-bold ml-2 transition-colors duration-200">
                         &times;
                     </button>
                 `;
@@ -716,18 +369,16 @@
             });
         }
         
-        // --- Select Element Population ---
         async function populateSelects() {
             if (!userId) return;
 
             roomHouseSelect.innerHTML = '<option value="" disabled selected>Select a House</option>';
             assignmentHouseSelect.innerHTML = '<option value="" disabled selected>Select a House</option>';
             assignmentRoomSelect.innerHTML = '<option value="" disabled selected>Select a Room</option>';
-            assignmentGuestSelect.innerHTML = '<option value="" disabled selected>Select a Guest or Family</option>';
+            assignmentGuestSelect.innerHTML = '<option value="" disabled selected>Select a Guest</option>';
             assignmentRoomSelect.disabled = true;
 
             try {
-                // Populate Houses
                 const housesSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/houses`));
                 housesSnap.forEach(doc => {
                     const house = { id: doc.id, ...doc.data() };
@@ -737,11 +388,10 @@
                     assignmentHouseSelect.add(option2);
                 });
 
-                // Populate Guests
                 const guestsSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/guests`));
                 guestsSnap.forEach(doc => {
                     const guest = { id: doc.id, ...doc.data() };
-                    const option = new Option(guest.family || guest.name, guest.id);
+                    const option = new Option(guest.name, doc.id);
                     assignmentGuestSelect.add(option);
                 });
             } catch (error) {
@@ -749,7 +399,6 @@
             }
         }
 
-        // --- Event Listeners ---
         houseForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const name = document.getElementById('house-name').value;
@@ -765,15 +414,12 @@
             const bedType = document.getElementById('room-bed-type').value;
 
             try {
-                const housesSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/houses`));
-                const house = housesSnap.docs.find(doc => doc.id === houseId)?.data();
-                if (house) {
-                    addData('rooms', { houseId, houseName: house.name, name, capacity, bedType, prepNeeded: tempPrepList });
-                    e.target.reset();
-                    tempPrepList = []; // Reset the temporary list
-                    renderTempPrepList();
-                    document.getElementById('room-house').value = "";
-                }
+                const house = roomsCache.find(r => r.id === houseId) || { houseName: 'Unknown' };
+                addData('rooms', { houseId, houseName: house.houseName, name, capacity, bedType, prepNeeded: tempPrepList });
+                e.target.reset();
+                tempPrepList = []; 
+                renderTempPrepList();
+                document.getElementById('room-house').value = "";
             } catch (error) {
                 console.error("Error adding room:", error);
             }
@@ -796,11 +442,8 @@
             const endDate = document.getElementById('assignment-end').value;
 
             try {
-                const roomsSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/rooms`));
-                const guestsSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/guests`));
-
-                const room = roomsSnap.docs.find(doc => doc.id === roomId)?.data();
-                const guest = guestsSnap.docs.find(doc => doc.id === guestId)?.data();
+                const room = roomsCache.find(r => r.id === roomId);
+                const guest = guestsCache.find(g => g.id === guestId);
 
                 if (room && guest) {
                     addData('assignments', { houseId, houseName: room.houseName, roomId, roomName: room.name, guestId, guestName: guest.name, startDate, endDate });
@@ -818,26 +461,18 @@
             assignmentRoomSelect.disabled = false;
             assignmentRoomSelect.innerHTML = '<option value="" disabled selected>Select a Room</option>';
 
-            try {
-                const roomsSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/rooms`));
-                roomsSnap.forEach(doc => {
-                    const room = { id: doc.id, ...doc.data() };
-                    if (room.houseId === houseId) {
-                        const option = new Option(room.name, room.id);
-                        assignmentRoomSelect.add(option);
-                    }
-                });
-            } catch (error) {
-                console.error("Error populating rooms:", error);
-            }
+            const filteredRooms = roomsCache.filter(room => room.houseId === houseId);
+            filteredRooms.forEach(room => {
+                const option = new Option(room.name, room.id);
+                assignmentRoomSelect.add(option);
+            });
         });
         
-        // --- Room List Rendering and Sorting ---
         let currentRoomsData = [];
 
         async function renderRooms(roomsData) {
             currentRoomsData = roomsData;
-            sortRooms('houseName'); // Default sort
+            sortRooms('houseName'); 
         }
 
         window.sortRooms = function(sortBy) {
@@ -853,50 +488,51 @@
             
             sortedData.forEach(item => {
                 const li = document.createElement('li');
+                li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500';
+                let prepListHtml = '';
+                if (item.prepNeeded && item.prepNeeded.length > 0) {
+                    prepListHtml = `
+                        <br><strong class="font-semibold text-gray-700">Prep Needed:</strong>
+                        <ul class="list-disc list-inside mt-1 ml-4">${item.prepNeeded.map(prep => `<li>${prep}</li>`).join('')}</ul>
+                    `;
+                }
                 li.innerHTML = `
-                    <span>
-                        🚪 ${item.name} (${item.houseName}) - Capacity: ${item.capacity}, Bed: ${item.bedType}
-                        ${item.prepNeeded && item.prepNeeded.length > 0 ? `
-                        <br><strong>Prep Needed:</strong>
-                        <ul>${item.prepNeeded.map(prep => `<li>${prep}</li>`).join('')}</ul>
-                        ` : ''}
-                    </span>
-                    <button class="delete-btn" onclick="deleteDataWrapper('rooms', '${item.id}')">Delete</button>
+                    <div class="flex items-center justify-between w-full">
+                        <span>
+                            🚪 <strong class="text-lg">${item.name}</strong> (${item.houseName})
+                            <br>Capacity: ${item.capacity}, Bed: ${item.bedType}
+                            ${prepListHtml}
+                        </span>
+                        <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="deleteDataWrapper('rooms', '${item.id}')">Delete</button>
+                    </div>
                 `;
                 roomList.appendChild(li);
             });
         };
 
-        // --- Reporting Functions ---
         async function renderDashboard() {
             if (!userId) return;
             const today = new Date().toISOString().split('T')[0];
-            dashboardTiles.innerHTML = ''; // Clear previous content
-            dashboardGuestsList.innerHTML = ''; // Clear guests list
+            dashboardTiles.innerHTML = ''; 
+            dashboardGuestsList.innerHTML = ''; 
 
             try {
-                const housesSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/houses`));
-                const roomsSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/rooms`));
-                const assignmentsSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/assignments`));
-                const guestsSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/guests`));
+                const houses = (await getDocs(collection(db, `artifacts/${appId}/public/data/houses`))).docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const rooms = (await getDocs(collection(db, `artifacts/${appId}/public/data/rooms`))).docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const assignments = (await getDocs(collection(db, `artifacts/${appId}/public/data/assignments`))).docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const guests = (await getDocs(collection(db, `artifacts/${appId}/public/data/guests`))).docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                const houses = housesSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const rooms = roomsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const assignments = assignmentsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const guests = guestsSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-                // Render houses and rooms in tiles
                 houses.forEach(house => {
                     const houseTile = document.createElement('div');
-                    houseTile.className = 'house-tile';
-                    houseTile.innerHTML = `<h3 class="house-title">🏡 ${house.name}</h3><div class="room-grid"></div>`;
-                    const roomGrid = houseTile.querySelector('.room-grid');
+                    houseTile.className = 'bg-white p-6 rounded-xl shadow-lg border-t-4 border-green-500';
+                    houseTile.innerHTML = `<h3 class="text-xl font-bold text-green-700 mb-4">🏡 ${house.name}</h3><div class="space-y-4"></div>`;
+                    const roomGrid = houseTile.querySelector('div');
 
                     const houseRooms = rooms.filter(room => room.houseId === house.id);
 
                     houseRooms.forEach(room => {
                         const roomTile = document.createElement('div');
-                        roomTile.className = 'room-tile';
+                        roomTile.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-gray-300';
                         
                         const activeAssignment = assignments.find(a => 
                             a.roomId === room.id && a.startDate <= today && a.endDate >= today
@@ -904,13 +540,18 @@
                         
                         let statusHtml = '';
                         if (activeAssignment) {
-                            statusHtml = `<p class="guest-info">Occupied by: ${activeAssignment.guestName}</p>`;
+                            roomTile.classList.remove('border-gray-300');
+                            roomTile.classList.add('border-red-500');
+                            statusHtml = `<p class="font-semibold text-red-700">Occupied by: <span class="font-bold text-gray-800">${activeAssignment.guestName}</span></p>`;
                         } else {
-                            statusHtml = `<p class="status-available">Available</p>`;
+                            roomTile.classList.remove('border-gray-300');
+                            roomTile.classList.add('border-green-500');
+                            statusHtml = `<p class="font-semibold text-green-700">Status: <span class="font-bold text-gray-800">Available</span></p>`;
+                            statusHtml += `<p class="text-sm text-gray-600">Capacity: ${room.capacity}, Bed: ${room.bedType}</p>`;
                         }
 
                         roomTile.innerHTML = `
-                            <h4>${room.name}</h4>
+                            <h4 class="font-bold text-lg mb-1">${room.name}</h4>
                             ${statusHtml}
                         `;
                         roomGrid.appendChild(roomTile);
@@ -919,21 +560,21 @@
                     dashboardTiles.appendChild(houseTile);
                 });
 
-                // Render guests list
                 const guestListContainer = document.createElement('div');
-                guestListContainer.innerHTML = '<h3>All Guests</h3><ul></ul>';
+                guestListContainer.innerHTML = '<h3 class="text-xl font-bold text-green-600 border-b-2 border-gray-200 pb-2 mb-4">Guest Status</h3><ul class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></ul>';
                 const guestUl = guestListContainer.querySelector('ul');
                 guests.forEach(guest => {
                     const li = document.createElement('li');
+                    li.className = 'bg-gray-50 p-4 rounded-lg shadow flex justify-between items-center';
                     
                     const isAssigned = assignments.some(a => a.guestId === guest.id && a.startDate <= today && a.endDate >= today);
                     
-                    const statusClass = isAssigned ? 'assigned' : 'not-assigned';
+                    const statusClass = isAssigned ? 'bg-green-500' : 'bg-red-500';
                     const statusText = isAssigned ? 'Assigned' : 'Not Assigned';
                     
                     li.innerHTML = `
-                        <span>${guest.name}</span>
-                        <span class="status-badge ${statusClass}">${statusText}</span>
+                        <span class="font-medium text-gray-800">${guest.name}</span>
+                        <span class="py-1 px-3 text-white text-xs font-bold rounded-full ${statusClass}">${statusText}</span>
                     `;
                     guestUl.appendChild(li);
                 });
@@ -953,7 +594,8 @@
                 assignments.sort((a, b) => new Date(a.startDate) - new Date(b.startDate));
                 assignments.forEach(assignment => {
                     const li = document.createElement('li');
-                    li.innerHTML = `<strong>${assignment.guestName}</strong> in <strong>${assignment.roomName}</strong> at <strong>${assignment.houseName}</strong> from ${assignment.startDate} to ${assignment.endDate}.`;
+                    li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500';
+                    li.innerHTML = `<strong class="font-semibold text-gray-800">${assignment.guestName}</strong> is staying in <strong class="text-gray-800">${assignment.roomName}</strong> at <strong class="text-gray-800">${assignment.houseName}</strong> from ${assignment.startDate} to ${assignment.endDate}.`;
                     reportsList.appendChild(li);
                 });
             } catch (error) {
@@ -966,25 +608,38 @@
             calendarGrid.innerHTML = '';
             currentMonthYear.textContent = `${new Date(currentYear, currentMonth).toLocaleString('default', { month: 'long' })} ${currentYear}`;
 
+            const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            daysOfWeek.forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'font-bold text-gray-600 p-2';
+                header.textContent = day;
+                calendarGrid.appendChild(header);
+            });
+
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-            // Fill in leading empty days
             for (let i = 0; i < firstDay; i++) {
                 const dayDiv = document.createElement('div');
-                dayDiv.classList.add('calendar-day');
+                dayDiv.className = 'p-2 bg-gray-200 rounded-md';
                 calendarGrid.appendChild(dayDiv);
             }
 
             try {
-                const assignmentsSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/assignments`));
-                const assignments = assignmentsSnap.docs.map(doc => doc.data());
+                const assignments = assignmentsCache;
+                const today = new Date();
+                const todayStr = today.toISOString().split('T')[0];
 
                 for (let i = 1; i <= daysInMonth; i++) {
                     const dayDiv = document.createElement('div');
-                    dayDiv.classList.add('calendar-day', 'current-month');
+                    dayDiv.className = 'p-2 border border-gray-300 rounded-md bg-white min-h-[100px] flex flex-col items-start';
+                    if (new Date(currentYear, currentMonth, i).toISOString().split('T')[0] === todayStr) {
+                        dayDiv.classList.add('bg-green-100', 'border-green-500');
+                    }
+                    
                     const dayNum = document.createElement('h5');
                     dayNum.textContent = i;
+                    dayNum.className = 'font-bold text-lg mb-1';
                     dayDiv.appendChild(dayNum);
 
                     const currentDate = new Date(currentYear, currentMonth, i).toISOString().split('T')[0];
@@ -992,8 +647,8 @@
                     assignments.forEach(assignment => {
                         if (currentDate >= assignment.startDate && currentDate <= assignment.endDate) {
                             const assignmentItem = document.createElement('div');
-                            assignmentItem.classList.add('assignment-item');
-                            assignmentItem.textContent = `${assignment.guestName} (${assignment.roomName})`;
+                            assignmentItem.className = 'text-xs text-gray-800 bg-green-200 px-2 py-1 rounded-full mb-1 overflow-hidden whitespace-nowrap text-ellipsis w-full';
+                            assignmentItem.textContent = `${assignment.guestName}`;
                             dayDiv.appendChild(assignmentItem);
                         }
                     });
@@ -1022,7 +677,6 @@
             renderCalendar();
         };
 
-        // --- Start the App ---
         window.onload = signIn;
     </script>
 </body>
