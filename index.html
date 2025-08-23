@@ -19,12 +19,13 @@
     </header>
 
     <nav class="flex flex-wrap justify-center bg-gray-700 p-2 gap-2">
-        <button onclick="showSection('dashboard')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Dashboard</button>
-        <button onclick="showSection('houses')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Houses</button>
-        <button onclick="showSection('rooms')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Rooms</button>
-        <button onclick="showSection('guests')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Guests</button>
-        <button onclick="showSection('assignments')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Assign Guests</button>
-        <button onclick="showSection('reports')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Reports</button>
+        <button onclick="window.showSection('dashboard')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Dashboard</button>
+        <button onclick="window.showSection('houses')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Houses</button>
+        <button onclick="window.showSection('rooms')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Rooms</button>
+        <button onclick="window.showSection('guests')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Guests</button>
+        <button onclick="window.showSection('assignments')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Assign Guests</button>
+        <button onclick="window.showSection('tasks')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Required Tasks</button>
+        <button onclick="window.showSection('reports')" class="bg-gray-600 hover:bg-gray-500 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200">Reports</button>
     </nav>
 
     <main class="p-4 md:p-8 max-w-7xl mx-auto">
@@ -67,7 +68,7 @@
                     <p class="font-medium mb-2">Prep Needed:</p>
                     <div class="flex gap-2 mb-2">
                         <input type="text" id="room-prep-item" placeholder="e.g., Buy new sheets" class="flex-grow p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
-                        <button type="button" onclick="addPrepItem()" class="bg-gray-400 text-white font-bold px-4 rounded-lg hover:bg-gray-500 transition-colors duration-200">Add</button>
+                        <button type="button" onclick="window.addPrepItem()" class="bg-gray-400 text-white font-bold px-4 rounded-lg hover:bg-gray-500 transition-colors duration-200">Add</button>
                     </div>
                     <ul id="prep-list" class="list-disc list-inside space-y-1"></ul>
                 </div>
@@ -75,8 +76,8 @@
             </form>
             <div class="flex items-center gap-4 mb-4">
                 <span class="font-medium">Sort by:</span>
-                <button onclick="sortRooms('houseName')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-1 px-3 rounded-md transition-colors duration-200">House</button>
-                <button onclick="sortRooms('name')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-1 px-3 rounded-md transition-colors duration-200">Room</button>
+                <button onclick="window.sortRooms('houseName')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-1 px-3 rounded-md transition-colors duration-200">House</button>
+                <button onclick="window.sortRooms('name')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-1 px-3 rounded-md transition-colors duration-200">Room</button>
             </div>
             <ul id="room-list" class="space-y-3"></ul>
         </section>
@@ -118,12 +119,23 @@
             <ul id="assignment-list" class="space-y-3"></ul>
         </section>
 
+        <!-- Required Tasks Section -->
+        <section id="tasks" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-lg transition-transform duration-300 transform hover:scale-105">
+            <h2 class="text-2xl font-bold text-green-600 border-b-2 border-gray-200 pb-2 mb-4">Required Tasks</h2>
+            <div class="flex items-center gap-4 mb-4">
+                <span class="font-medium">Sort by:</span>
+                <button onclick="window.sortTasks('houseName')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-1 px-3 rounded-md transition-colors duration-200">House</button>
+                <button onclick="window.sortTasks('name')" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-1 px-3 rounded-md transition-colors duration-200">Room</button>
+            </div>
+            <ul id="tasks-list" class="space-y-3"></ul>
+        </section>
+
         <!-- Reports Section -->
         <section id="reports" class="hidden bg-white p-6 md:p-8 rounded-xl shadow-lg transition-transform duration-300 transform hover:scale-105">
             <h2 class="text-2xl font-bold text-green-600 border-b-2 border-gray-200 pb-2 mb-4">Reports</h2>
             <div class="flex gap-4 mb-6">
-                <button onclick="showReportView('list-view')" class="report-tab active-tab bg-green-600 text-white font-medium py-2 px-4 rounded-md">List View</button>
-                <button onclick="showReportView('calendar-view')" class="report-tab bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md">Calendar View</button>
+                <button onclick="window.showReportView('list-view')" class="report-tab active-tab bg-green-600 text-white font-medium py-2 px-4 rounded-md">List View</button>
+                <button onclick="window.showReportView('calendar-view')" class="report-tab bg-gray-200 text-gray-800 font-medium py-2 px-4 rounded-md">Calendar View</button>
             </div>
 
             <!-- List View Report -->
@@ -136,13 +148,39 @@
             <div id="calendar-view" class="report-content hidden-report hidden">
                 <h3 class="text-xl font-semibold mb-4">Assignments (Calendar View)</h3>
                 <div id="calendar-controls" class="flex items-center justify-between mb-4 bg-gray-100 p-2 rounded-lg">
-                    <button onclick="prevMonth()" class="bg-gray-300 text-gray-800 px-3 py-1 rounded-md">&lt; Prev</button>
+                    <button onclick="window.prevMonth()" class="bg-gray-300 text-gray-800 px-3 py-1 rounded-md">&lt; Prev</button>
                     <h4 id="current-month-year" class="text-lg font-semibold"></h4>
-                    <button onclick="nextMonth()" class="bg-gray-300 text-gray-800 px-3 py-1 rounded-md">Next &gt;</button>
+                    <button onclick="window.nextMonth()" class="bg-gray-300 text-gray-800 px-3 py-1 rounded-md">Next &gt;</button>
                 </div>
                 <div id="calendar-grid" class="grid grid-cols-7 gap-2 text-center text-sm"></div>
             </div>
         </section>
+
+        <!-- Modal for Guest Assignment -->
+        <div id="assignment-modal" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex items-center justify-center z-50">
+            <div class="relative p-8 bg-white w-96 rounded-lg shadow-lg">
+                <button onclick="window.closeAssignmentModal()" class="absolute top-3 right-3 text-gray-500 hover:text-gray-800 text-xl font-bold">&times;</button>
+                <h3 class="text-2xl font-bold text-green-600 border-b-2 border-gray-200 pb-2 mb-4">Assign Guest to Room</h3>
+                <div id="modal-guest-info" class="mb-4"></div>
+                <form id="modal-assignment-form" class="grid grid-cols-1 gap-4">
+                    <select id="modal-assignment-house" required class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="" disabled selected>Select a House</option>
+                    </select>
+                    <select id="modal-assignment-room" required disabled class="p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="" disabled selected>Select a Room</option>
+                    </select>
+                    <div>
+                        <label for="modal-assignment-start" class="block text-sm font-medium text-gray-700">Start Date:</label>
+                        <input type="date" id="modal-assignment-start" required class="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 w-full">
+                    </div>
+                    <div>
+                        <label for="modal-assignment-end" class="block text-sm font-medium text-gray-700">End Date:</label>
+                        <input type="date" id="modal-assignment-end" required class="mt-1 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 w-full">
+                    </div>
+                    <button type="submit" class="bg-green-500 text-white font-bold py-2 px-4 rounded-lg hover:bg-green-600 transition-colors duration-200 mt-4">Assign</button>
+                </form>
+            </div>
+        </div>
     </main>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -185,9 +223,17 @@
         const assignmentGuestSelect = document.getElementById('assignment-guest');
         const dashboardTiles = document.getElementById('dashboard-tiles');
         const dashboardGuestsList = document.getElementById('dashboard-guests-list');
+        const tasksList = document.getElementById('tasks-list');
         const userInfo = document.getElementById('user-info');
         const roomPrepItemInput = document.getElementById('room-prep-item');
         const prepListUl = document.getElementById('prep-list');
+        const assignmentModal = document.getElementById('assignment-modal');
+        const modalAssignmentForm = document.getElementById('modal-assignment-form');
+        const modalAssignmentHouseSelect = document.getElementById('modal-assignment-house');
+        const modalAssignmentRoomSelect = document.getElementById('modal-assignment-room');
+        const modalAssignmentStartInput = document.getElementById('modal-assignment-start');
+        const modalAssignmentEndInput = document.getElementById('modal-assignment-end');
+        const modalGuestInfo = document.getElementById('modal-guest-info');
 
         let currentMonth = new Date().getMonth();
         let currentYear = new Date().getFullYear();
@@ -208,7 +254,7 @@
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 userId = user.uid;
-                userInfo.innerHTML = `<strong>User ID:</strong> ${userId}`;
+                userInfo.innerHTML = `<span class="text-sm">User ID: ${userId}</span>`;
                 loadData();
             } else {
                 console.log("User is signed out.");
@@ -230,6 +276,9 @@
             if (sectionId === 'dashboard') {
                 renderDashboard();
             }
+            if (sectionId === 'tasks') {
+                renderTasks();
+            }
         };
 
         window.showReportView = function(viewId) {
@@ -239,11 +288,11 @@
             document.getElementById(viewId).classList.remove('hidden');
 
             document.querySelectorAll('.report-tab').forEach(button => {
-                button.classList.remove('active-tab', 'bg-green-600', 'text-white');
+                button.classList.remove('bg-green-600', 'text-white');
                 button.classList.add('bg-gray-200', 'text-gray-800');
             });
-            document.querySelector(`button[onclick="showReportView('${viewId}')"]`).classList.add('active-tab', 'bg-green-600', 'text-white');
-            document.querySelector(`button[onclick="showReportView('${viewId}')"]`).classList.remove('bg-gray-200', 'text-gray-800');
+            document.querySelector(`button[onclick="window.showReportView('${viewId}')"]`).classList.add('bg-green-600', 'text-white');
+            document.querySelector(`button[onclick="window.showReportView('${viewId}')"]`).classList.remove('bg-gray-200', 'text-gray-800');
 
             if (viewId === 'calendar-view') {
                 renderCalendar();
@@ -286,40 +335,37 @@
         }
 
         function setupRealtimeListeners() {
-            // Houses
             onSnapshot(collection(db, `artifacts/${appId}/public/data/houses`), (snapshot) => {
                 houseList.innerHTML = '';
                 snapshot.forEach(doc => {
                     const item = { id: doc.id, ...doc.data() };
                     const li = document.createElement('li');
                     li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center';
-                    li.innerHTML = `<span>🏡 ${item.name}</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="deleteDataWrapper('houses', '${item.id}')">Delete</button>`;
+                    li.innerHTML = `<span>🏡 ${item.name}</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="window.deleteDataWrapper('houses', '${item.id}')">Delete</button>`;
                     houseList.appendChild(li);
                 });
                 populateSelects();
             });
 
-            // Rooms
             onSnapshot(collection(db, `artifacts/${appId}/public/data/rooms`), (snapshot) => {
                 roomsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 renderRooms(roomsCache);
                 populateSelects();
+                renderTasks();
             });
 
-            // Guests
             onSnapshot(collection(db, `artifacts/${appId}/public/data/guests`), (snapshot) => {
                 guestList.innerHTML = '';
                 guestsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 guestsCache.forEach(item => {
                     const li = document.createElement('li');
                     li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center';
-                    li.innerHTML = `<span>👤 ${item.name} ${item.family ? `(Family: ${item.family})` : ''}</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="deleteDataWrapper('guests', '${item.id}')">Delete</button>`;
+                    li.innerHTML = `<span>👤 ${item.name} ${item.family ? `(Family: ${item.family})` : ''}</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="window.deleteDataWrapper('guests', '${item.id}')">Delete</button>`;
                     guestList.appendChild(li);
                 });
                 populateSelects();
             });
 
-            // Assignments
             onSnapshot(collection(db, `artifacts/${appId}/public/data/assignments`), (snapshot) => {
                 assignmentsCache = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 assignmentList.innerHTML = '';
@@ -327,7 +373,7 @@
                 assignmentsCache.forEach(item => {
                     const li = document.createElement('li');
                     li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center';
-                    li.innerHTML = `<span>🗓️ ${item.guestName} staying in ${item.roomName} at ${item.houseName} from ${item.startDate} to ${item.endDate}.</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="deleteDataWrapper('assignments', '${item.id}')">Delete</button>`;
+                    li.innerHTML = `<span>🗓️ ${item.guestName} staying in ${item.roomName} at ${item.houseName} from ${item.startDate} to ${item.endDate}.</span> <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="window.deleteDataWrapper('assignments', '${item.id}')">Delete</button>`;
                     assignmentList.appendChild(li);
                 });
                 renderReports();
@@ -361,7 +407,7 @@
                 li.className = 'flex justify-between items-center bg-gray-200 p-2 rounded-md';
                 li.innerHTML = `
                     <span>${item}</span>
-                    <button type="button" onclick="removePrepItem(${index})" class="text-red-500 hover:text-red-700 font-bold ml-2 transition-colors duration-200">
+                    <button type="button" onclick="window.removePrepItem(${index})" class="text-red-500 hover:text-red-700 font-bold ml-2 transition-colors duration-200">
                         &times;
                     </button>
                 `;
@@ -378,22 +424,34 @@
             assignmentGuestSelect.innerHTML = '<option value="" disabled selected>Select a Guest</option>';
             assignmentRoomSelect.disabled = true;
 
+            modalAssignmentHouseSelect.innerHTML = '<option value="" disabled selected>Select a House</option>';
+            modalAssignmentRoomSelect.innerHTML = '<option value="" disabled selected>Select a Room</option>';
+            modalAssignmentRoomSelect.disabled = true;
+
             try {
                 const housesSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/houses`));
                 housesSnap.forEach(doc => {
                     const house = { id: doc.id, ...doc.data() };
                     const option1 = new Option(house.name, house.id);
                     const option2 = new Option(house.name, house.id);
+                    const option3 = new Option(house.name, house.id);
                     roomHouseSelect.add(option1);
                     assignmentHouseSelect.add(option2);
+                    modalAssignmentHouseSelect.add(option3);
                 });
 
                 const guestsSnap = await getDocs(collection(db, `artifacts/${appId}/public/data/guests`));
-                guestsSnap.forEach(doc => {
-                    const guest = { id: doc.id, ...doc.data() };
-                    const option = new Option(guest.name, doc.id);
-                    assignmentGuestSelect.add(option);
+                // Add guests and families to the dropdown
+                const uniqueFamilies = [...new Set(guestsCache.filter(g => g.family).map(g => g.family))];
+                uniqueFamilies.forEach(family => {
+                    const familyOption = new Option(`Family: ${family}`, `family-${family}`);
+                    assignmentGuestSelect.add(familyOption);
                 });
+                guestsCache.forEach(guest => {
+                    const guestOption = new Option(guest.name, guest.id);
+                    assignmentGuestSelect.add(guestOption);
+                });
+
             } catch (error) {
                 console.error("Error populating selects:", error);
             }
@@ -437,24 +495,53 @@
             e.preventDefault();
             const houseId = document.getElementById('assignment-house').value;
             const roomId = document.getElementById('assignment-room').value;
-            const guestId = document.getElementById('assignment-guest').value;
+            const guestIdentifier = document.getElementById('assignment-guest').value;
             const startDate = document.getElementById('assignment-start').value;
             const endDate = document.getElementById('assignment-end').value;
 
             try {
                 const room = roomsCache.find(r => r.id === roomId);
-                const guest = guestsCache.find(g => g.id === guestId);
 
-                if (room && guest) {
-                    addData('assignments', { houseId, houseName: room.houseName, roomId, roomName: room.name, guestId, guestName: guest.name, startDate, endDate });
-                    e.target.reset();
-                    assignmentRoomSelect.disabled = true;
-                    assignmentRoomSelect.innerHTML = '<option value="" disabled selected>Select a Room</option>';
+                if (guestIdentifier.startsWith('family-')) {
+                    const familyName = guestIdentifier.replace('family-', '');
+                    const familyMembers = guestsCache.filter(g => g.family === familyName);
+                    for (const guest of familyMembers) {
+                         addData('assignments', { houseId, houseName: room.houseName, roomId, roomName: room.name, guestId: guest.id, guestName: guest.name, startDate, endDate });
+                    }
+                } else {
+                    const guest = guestsCache.find(g => g.id === guestIdentifier);
+                    addData('assignments', { houseId, houseName: room.houseName, roomId, roomName: room.name, guestId: guest.id, guestName: guest.name, startDate, endDate });
                 }
+                
+                e.target.reset();
+                assignmentRoomSelect.disabled = true;
+                assignmentRoomSelect.innerHTML = '<option value="" disabled selected>Select a Room</option>';
             } catch (error) {
                 console.error("Error adding assignment:", error);
             }
         });
+        
+        modalAssignmentForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const guestId = modalAssignmentForm.dataset.guestId;
+            const houseId = modalAssignmentHouseSelect.value;
+            const roomId = modalAssignmentRoomSelect.value;
+            const startDate = modalAssignmentStartInput.value;
+            const endDate = modalAssignmentEndInput.value;
+
+            try {
+                const room = roomsCache.find(r => r.id === roomId);
+                const guest = guestsCache.find(g => g.id === guestId);
+                
+                if (room && guest) {
+                    addData('assignments', { houseId, houseName: room.houseName, roomId, roomName: room.name, guestId: guest.id, guestName: guest.name, startDate, endDate });
+                    window.closeAssignmentModal();
+                }
+            } catch (error) {
+                console.error("Error adding assignment from modal:", error);
+            }
+        });
+
 
         assignmentHouseSelect.addEventListener('change', async (e) => {
             const houseId = e.target.value;
@@ -468,9 +555,22 @@
             });
         });
         
+        modalAssignmentHouseSelect.addEventListener('change', (e) => {
+            const houseId = e.target.value;
+            modalAssignmentRoomSelect.disabled = false;
+            modalAssignmentRoomSelect.innerHTML = '<option value="" disabled selected>Select a Room</option>';
+            
+            const filteredRooms = roomsCache.filter(room => room.houseId === houseId);
+            filteredRooms.forEach(room => {
+                const option = new Option(room.name, room.id);
+                modalAssignmentRoomSelect.add(option);
+            });
+        });
+        
         let currentRoomsData = [];
+        let allTasksData = [];
 
-        async function renderRooms(roomsData) {
+        function renderRooms(roomsData) {
             currentRoomsData = roomsData;
             sortRooms('houseName'); 
         }
@@ -488,27 +588,69 @@
             
             sortedData.forEach(item => {
                 const li = document.createElement('li');
-                li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500';
+                li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500 flex justify-between items-center';
                 let prepListHtml = '';
                 if (item.prepNeeded && item.prepNeeded.length > 0) {
                     prepListHtml = `
                         <br><strong class="font-semibold text-gray-700">Prep Needed:</strong>
-                        <ul class="list-disc list-inside mt-1 ml-4">${item.prepNeeded.map(prep => `<li>${prep}</li>`).join('')}</ul>
+                        <ul class="list-disc list-inside mt-1 ml-4 text-sm">${item.prepNeeded.map(prep => `<li>${prep}</li>`).join('')}</ul>
                     `;
                 }
                 li.innerHTML = `
-                    <div class="flex items-center justify-between w-full">
-                        <span>
-                            🚪 <strong class="text-lg">${item.name}</strong> (${item.houseName})
-                            <br>Capacity: ${item.capacity}, Bed: ${item.bedType}
-                            ${prepListHtml}
-                        </span>
-                        <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="deleteDataWrapper('rooms', '${item.id}')">Delete</button>
+                    <div class="w-full">
+                        <div class="flex items-center justify-between">
+                            <span>
+                                🚪 <strong class="text-lg">${item.name}</strong> (${item.houseName})
+                            </span>
+                            <button class="bg-red-500 text-white text-sm py-1 px-3 rounded-md hover:bg-red-600 transition-colors duration-200" onclick="window.deleteDataWrapper('rooms', '${item.id}')">Delete</button>
+                        </div>
+                        <p class="text-sm mt-2 text-gray-600">Capacity: ${item.capacity}, Bed: ${item.bedType}</p>
+                        ${prepListHtml}
                     </div>
                 `;
                 roomList.appendChild(li);
             });
         };
+
+        function renderTasks() {
+            tasksList.innerHTML = '';
+            allTasksData = [];
+            roomsCache.forEach(room => {
+                if (room.prepNeeded && room.prepNeeded.length > 0) {
+                    room.prepNeeded.forEach(task => {
+                        allTasksData.push({
+                            houseName: room.houseName,
+                            roomName: room.name,
+                            task: task
+                        });
+                    });
+                }
+            });
+            sortTasks('houseName');
+        }
+
+        window.sortTasks = function(sortBy) {
+            tasksList.innerHTML = '';
+            let sortedTasks = [...allTasksData];
+
+            if (sortBy === 'houseName') {
+                sortedTasks.sort((a, b) => a.houseName.localeCompare(b.houseName) || a.roomName.localeCompare(b.roomName));
+            } else if (sortBy === 'name') {
+                sortedTasks.sort((a, b) => a.roomName.localeCompare(b.roomName) || a.houseName.localeCompare(b.houseName));
+            }
+
+            sortedTasks.forEach(task => {
+                const li = document.createElement('li');
+                li.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500';
+                li.innerHTML = `
+                    <p class="text-gray-800">
+                        <strong class="font-semibold">${task.houseName}</strong> - ${task.roomName}: ${task.task}
+                    </p>
+                `;
+                tasksList.appendChild(li);
+            });
+        }
+
 
         async function renderDashboard() {
             if (!userId) return;
@@ -518,9 +660,9 @@
 
             try {
                 const houses = (await getDocs(collection(db, `artifacts/${appId}/public/data/houses`))).docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const rooms = (await getDocs(collection(db, `artifacts/${appId}/public/data/rooms`))).docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const assignments = (await getDocs(collection(db, `artifacts/${appId}/public/data/assignments`))).docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                const guests = (await getDocs(collection(db, `artifacts/${appId}/public/data/guests`))).docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                const rooms = roomsCache;
+                const assignments = assignmentsCache;
+                const guests = guestsCache;
 
                 houses.forEach(house => {
                     const houseTile = document.createElement('div');
@@ -532,7 +674,6 @@
 
                     houseRooms.forEach(room => {
                         const roomTile = document.createElement('div');
-                        roomTile.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-gray-300';
                         
                         const activeAssignment = assignments.find(a => 
                             a.roomId === room.id && a.startDate <= today && a.endDate >= today
@@ -540,12 +681,10 @@
                         
                         let statusHtml = '';
                         if (activeAssignment) {
-                            roomTile.classList.remove('border-gray-300');
-                            roomTile.classList.add('border-red-500');
-                            statusHtml = `<p class="font-semibold text-red-700">Occupied by: <span class="font-bold text-gray-800">${activeAssignment.guestName}</span></p>`;
+                            roomTile.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-red-500';
+                            statusHtml = `<p class="font-semibold text-red-700">Status: <span class="font-bold text-gray-800">Unavailable</span></p>`;
                         } else {
-                            roomTile.classList.remove('border-gray-300');
-                            roomTile.classList.add('border-green-500');
+                            roomTile.className = 'bg-gray-50 p-4 rounded-lg shadow border-l-4 border-green-500';
                             statusHtml = `<p class="font-semibold text-green-700">Status: <span class="font-bold text-gray-800">Available</span></p>`;
                             statusHtml += `<p class="text-sm text-gray-600">Capacity: ${room.capacity}, Bed: ${room.bedType}</p>`;
                         }
@@ -565,8 +704,11 @@
                 const guestUl = guestListContainer.querySelector('ul');
                 guests.forEach(guest => {
                     const li = document.createElement('li');
-                    li.className = 'bg-gray-50 p-4 rounded-lg shadow flex justify-between items-center';
-                    
+                    li.className = 'bg-gray-50 p-4 rounded-lg shadow flex justify-between items-center cursor-pointer hover:bg-gray-100 transition-colors duration-200';
+                    li.setAttribute('data-guest-id', guest.id);
+                    li.setAttribute('data-guest-name', guest.name);
+                    li.onclick = () => window.openAssignmentModal(guest.id, guest.name);
+
                     const isAssigned = assignments.some(a => a.guestId === guest.id && a.startDate <= today && a.endDate >= today);
                     
                     const statusClass = isAssigned ? 'bg-green-500' : 'bg-red-500';
@@ -584,6 +726,19 @@
                 console.error("Error rendering dashboard:", error);
             }
         }
+
+        window.openAssignmentModal = function(guestId, guestName) {
+            modalGuestInfo.innerHTML = `<p class="text-lg font-semibold">Assigning: ${guestName}</p>`;
+            modalAssignmentForm.setAttribute('data-guest-id', guestId);
+            assignmentModal.classList.remove('hidden');
+        };
+
+        window.closeAssignmentModal = function() {
+            assignmentModal.classList.add('hidden');
+            modalAssignmentForm.reset();
+            modalAssignmentRoomSelect.innerHTML = '<option value="" disabled selected>Select a Room</option>';
+            modalAssignmentRoomSelect.disabled = true;
+        };
 
         async function renderReports() {
             if (!userId) return;
