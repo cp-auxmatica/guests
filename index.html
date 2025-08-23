@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Family Guest Management System</title>
+    <!-- Use Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,37 +28,37 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        
+
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         @keyframes slideUp {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        
+
         .glass-card {
             backdrop-filter: blur(10px);
             background: rgba(255, 255, 255, 0.9);
             border: 1px solid rgba(255, 255, 255, 0.2);
         }
-        
+
         .nav-active {
             background: linear-gradient(135deg, #4f46e5, #7c3aed);
             color: white;
             box-shadow: 0 4px 15px rgba(79, 70, 229, 0.4);
         }
-        
+
         .capacity-indicator {
             background: linear-gradient(90deg, #10b981, #059669);
         }
-        
+
         .capacity-full {
             background: linear-gradient(90deg, #ef4444, #dc2626);
         }
-        
+
         .hover-lift:hover {
             transform: translateY(-2px);
             transition: all 0.2s ease;
@@ -116,6 +117,7 @@
                             <p class="text-sm text-slate-600">Professional Family Planning System</p>
                         </div>
                     </div>
+                    <!-- New: Desktop-only navigation -->
                     <nav class="hidden lg:flex space-x-2">
                         <button onclick="app.showSection('overview')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Overview</button>
                         <button onclick="app.showSection('properties')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Properties</button>
@@ -123,8 +125,21 @@
                         <button onclick="app.showSection('guests')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Guests</button>
                         <button onclick="app.showSection('assignments')" class="px-4 py-2 rounded-xl text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Assignments</button>
                     </nav>
+
+                    <!-- New: Mobile hamburger menu icon -->
+                    <button id="menu-toggle" class="lg:hidden p-2 rounded-xl text-slate-600 hover:bg-white/60 transition-all">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path id="menu-icon-open" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path><path id="menu-icon-close" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                    </button>
                 </div>
             </div>
+            <!-- New: Mobile dropdown menu -->
+            <nav id="mobile-menu" class="hidden lg:hidden flex-col items-center py-4 bg-white/90 border-t border-white/20">
+                <button onclick="app.showSection('overview'); app.toggleMenu();" class="w-full px-4 py-3 text-center text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Overview</button>
+                <button onclick="app.showSection('properties'); app.toggleMenu();" class="w-full px-4 py-3 text-center text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Properties</button>
+                <button onclick="app.showSection('accommodations'); app.toggleMenu();" class="w-full px-4 py-3 text-center text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Accommodations</button>
+                <button onclick="app.showSection('guests'); app.toggleMenu();" class="w-full px-4 py-3 text-center text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Guests</button>
+                <button onclick="app.showSection('assignments'); app.toggleMenu();" class="w-full px-4 py-3 text-center text-sm font-medium text-slate-600 hover:bg-white/60 transition-all">Assignments</button>
+            </nav>
         </header>
 
         <main class="flex-grow max-w-7xl mx-auto w-full p-4 lg:p-8">
@@ -225,47 +240,40 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Firebase Configuration - Replace with your project's configuration
-        const firebaseConfig = {
-            apiKey: "AIzaSyB_0fHWf0Hrpjcv4Hn0QY4L4JDMpc9RFVc",
-            authDomain: "home-guests.firebaseapp.com",
-            projectId: "home-guests",
-            storageBucket: "home-guests.firebasestorage.app",
-            messagingSenderId: "527629164349",
-            appId: "1:527629164349:web:6eca4e0ce1020d35f56f54"
-        };
+        // IMPORTANT: The hardcoded Firebase config has been replaced with the provided global variables.
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : null);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
 
         const app = {
             db: null,
             auth: null,
             userId: null,
-            appId: 'home-guests',
-            
+            appId: appId,
+
             data: {
                 properties: [],
                 rooms: [],
                 guests: [],
                 assignments: [],
             },
-            
+
             async init() {
                 try {
                     const firebaseApp = initializeApp(firebaseConfig);
                     this.db = getFirestore(firebaseApp);
                     this.auth = getAuth(firebaseApp);
-            
+
                     await this.authenticateUser();
                     this.bindEvents();
-                    
+
                 } catch (error) {
                     console.error("Initialization error:", error);
-                    this.showInitError();
                 }
             },
-            
+
             authenticateUser() {
                 return new Promise((resolve) => {
                     onAuthStateChanged(this.auth, async (user) => {
@@ -275,21 +283,19 @@
                             resolve();
                         } else {
                             try {
-                                await signInAnonymously(this.auth);
+                                if (typeof __initial_auth_token !== 'undefined') {
+                                    await signInWithCustomToken(this.auth, __initial_auth_token);
+                                } else {
+                                    await signInAnonymously(this.auth);
+                                }
                             } catch (error) {
                                 console.error("Authentication failed:", error);
-                                this.showInitError("Authentication Failed. Please refresh.");
                             }
                         }
                     });
                 });
             },
-            
-            showInitError(message = "Something went wrong. Please refresh.") {
-                const overlay = document.getElementById('loading-overlay');
-                overlay.innerHTML = `<div class="text-center"><div class="text-red-600 text-lg font-semibold mb-2">Error</div><p class="text-slate-600">${message}</p></div>`;
-            },
-            
+
             setupRealtimeListeners() {
                 const collectionsToSync = ['properties', 'rooms', 'guests', 'assignments'];
                 let loadedCollections = 0;
@@ -298,7 +304,7 @@
                     const collectionRef = collection(this.db, `artifacts/${this.appId}/public/data/${collectionName}`);
                     onSnapshot(collectionRef, (snapshot) => {
                         this.data[collectionName] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                        
+
                         // Wait for all initial data to load before rendering
                         if(loadedCollections < collectionsToSync.length) {
                             loadedCollections++;
@@ -322,27 +328,44 @@
                     this.renderSection(visibleSection.id);
                 }
             },
-            
+
             hideLoading() {
                 document.getElementById('loading-overlay').classList.add('hidden');
             },
-            
+
             bindEvents() {
                 document.getElementById('property-form').addEventListener('submit', (e) => this.handlePropertySubmit(e));
                 document.getElementById('property-edit-form').addEventListener('submit', (e) => this.handlePropertyUpdate(e));
                 document.getElementById('room-form').addEventListener('submit', (e) => this.handleRoomSubmit(e));
                 document.getElementById('guest-form').addEventListener('submit', (e) => this.handleGuestSubmit(e));
                 document.getElementById('modal-cancel-delete').addEventListener('click', () => this.hideDeleteModal());
+                
+                // New: Add event listener for the mobile menu toggle
+                document.getElementById('menu-toggle').addEventListener('click', () => this.toggleMenu());
             },
             
+            // New: Toggle mobile menu visibility
+            toggleMenu() {
+                const mobileMenu = document.getElementById('mobile-menu');
+                const openIcon = document.getElementById('menu-icon-open');
+                const closeIcon = document.getElementById('menu-icon-close');
+
+                mobileMenu.classList.toggle('hidden');
+                openIcon.classList.toggle('hidden');
+                closeIcon.classList.toggle('hidden');
+            },
+
             showSection(sectionId) {
                 document.querySelectorAll('main section').forEach(section => section.classList.add('hidden'));
                 document.getElementById(sectionId).classList.remove('hidden');
+                
+                // Update active state for both desktop and mobile buttons
                 document.querySelectorAll('nav button').forEach(btn => btn.classList.remove('nav-active'));
-                document.querySelectorAll(`button[onclick="app.showSection('${sectionId}')"]`).forEach(btn => btn.classList.add('nav-active'));
+                document.querySelectorAll(`button[onclick*="showSection('${sectionId}')"]`).forEach(btn => btn.classList.add('nav-active'));
+                
                 this.renderSection(sectionId);
             },
-            
+
             renderSection(sectionId) {
                 switch(sectionId) {
                     case 'overview': this.renderOverview(); break;
@@ -352,17 +375,17 @@
                     case 'assignments': this.renderAssignments(); break;
                 }
             },
-            
+
             // --- RENDER METHODS ---
 
             renderOverview() {
                 document.getElementById('stat-properties').textContent = this.data.properties.length;
                 document.getElementById('stat-rooms').textContent = this.data.rooms.length;
                 document.getElementById('stat-guests').textContent = this.data.guests.length;
-                
+
                 const assignmentsContainer = document.getElementById('overview-assignments');
                 const assignments = this.getAssignmentDetails();
-                
+
                 if (assignments.length === 0) {
                     assignmentsContainer.innerHTML = `<div class="text-center py-8 text-slate-500"><svg class="w-12 h-12 mx-auto mb-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-.5a3 3 0 11-6 0 3 3 0 016 0z"></path></svg><p>No assignments yet. Start by assigning guests to rooms.</p></div>`;
                 } else {
@@ -376,7 +399,7 @@
                         </div>`).join('');
                 }
             },
-            
+
             renderProperties() {
                 const container = document.getElementById('property-list');
                 if (this.data.properties.length === 0) {
@@ -402,7 +425,7 @@
                 }
                 this.updatePropertyDropdown();
             },
-            
+
             renderRooms() {
                 const container = document.getElementById('room-list');
                 if (this.data.rooms.length === 0) {
@@ -437,7 +460,7 @@
                 }
                 this.updatePropertyDropdown();
             },
-            
+
             renderGuests() {
                 const container = document.getElementById('guest-list');
                  if (this.data.guests.length === 0) {
@@ -467,12 +490,12 @@
                     }).join('');
                 }
             },
-            
+
             renderAssignments() {
                 const container = document.getElementById('assignment-list');
                 const unassignedGuests = this.data.guests.filter(g => !this.data.assignments.find(a => a.guestId === g.id));
                 const assignedDetails = this.getAssignmentDetails();
-                
+
                 let html = '';
                 if (unassignedGuests.length > 0) {
                     html += `<div class="glass-card rounded-2xl p-6"><h3 class="text-xl font-semibold text-slate-800 mb-4">Unassigned Guests</h3><div class="space-y-4">
@@ -509,7 +532,7 @@
                     container.innerHTML = html;
                 }
             },
-            
+
             // --- FORM HANDLERS ---
             async handlePropertySubmit(e) {
                 e.preventDefault();
@@ -518,7 +541,7 @@
                 e.target.reset();
                 this.showToast('Property added successfully!');
             },
-            
+
             async handlePropertyUpdate(e) {
                 e.preventDefault();
                 const form = e.target;
@@ -538,26 +561,26 @@
                 e.target.reset();
                 this.showToast('Room added successfully!');
             },
-            
+
             async handleGuestSubmit(e) {
                 e.preventDefault();
                 await this.addDoc('guests', Object.fromEntries(new FormData(e.target).entries()));
                 e.target.reset();
                 this.showToast('Guest added successfully!');
             },
-            
+
             async handleAssignment(e, guestId) {
                 e.preventDefault();
                 const roomId = new FormData(e.target).get('roomId');
                 if (!roomId) return;
-                
+
                 const room = this.data.rooms.find(r => r.id === roomId);
                 if (!room) return;
 
                 await this.addDoc('assignments', { guestId, roomId, propertyId: room.propertyId });
                 this.showToast('Guest assigned successfully!');
             },
-            
+
             // --- FIREBASE CRUD WRAPPERS ---
             async addDoc(collectionName, data) {
                 if (!this.userId) return;
@@ -584,7 +607,7 @@
             async deleteProperty(id) {
                 const batch = writeBatch(this.db);
                 const roomsToDelete = this.data.rooms.filter(r => r.propertyId === id);
-                
+
                 roomsToDelete.forEach(room => {
                     const roomRef = doc(this.db, `artifacts/${this.appId}/public/data/rooms`, room.id);
                     batch.delete(roomRef);
@@ -593,10 +616,10 @@
                         batch.delete(assignmentRef);
                     });
                 });
-                
+
                 const propRef = doc(this.db, `artifacts/${this.appId}/public/data/properties`, id);
                 batch.delete(propRef);
-                
+
                 await batch.commit();
                 this.showToast('Property and all its rooms/assignments deleted!');
             },
@@ -607,10 +630,10 @@
                     const assignmentRef = doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id);
                     batch.delete(assignmentRef);
                 });
-                
+
                 const roomRef = doc(this.db, `artifacts/${this.appId}/public/data/rooms`, id);
                 batch.delete(roomRef);
-                
+
                 await batch.commit();
                 this.showToast('Room and its assignments deleted!');
             },
@@ -621,14 +644,14 @@
                     const assignmentRef = doc(this.db, `artifacts/${this.appId}/public/data/assignments`, assignment.id);
                     batch.delete(assignmentRef);
                 });
-                
+
                 const guestRef = doc(this.db, `artifacts/${this.appId}/public/data/guests`, id);
                 batch.delete(guestRef);
-                
+
                 await batch.commit();
                 this.showToast('Guest and their assignment deleted!');
             },
-            
+
             async removeAssignment(id) {
                 await this.deleteDoc('assignments', id);
                 this.showToast('Assignment removed!');
@@ -643,7 +666,7 @@
                 form.id.value = id;
                 form.name.value = property.name;
                 form.address.value = property.address || '';
-                
+
                 document.getElementById('property-form').classList.add('hidden');
                 form.classList.remove('hidden');
             },
@@ -659,10 +682,10 @@
             async editRoom(id) {
                 const room = this.data.rooms.find(r => r.id === id);
                 if (!room) return;
-                
+
                 const newName = prompt('Edit room name:', room.name);
                 const newCapacity = prompt('Edit room capacity:', room.capacity);
-                
+
                 if (newName && newName.trim()) {
                     const updateData = { name: newName.trim() };
                     if (newCapacity && !isNaN(parseInt(newCapacity))) {
@@ -672,21 +695,21 @@
                     this.showToast('Room updated successfully!');
                 }
             },
-            
+
             async editGuest(id) {
                 const guest = this.data.guests.find(g => g.id === id);
                 if (!guest) return;
-                
+
                 const newName = prompt('Edit guest name:', guest.name);
                 const newFamily = prompt('Edit family name:', guest.family || '');
-                
+
                 if (newName && newName.trim()) {
                     const updateData = { name: newName.trim(), family: newFamily.trim() };
                     await this.updateDoc('guests', id, updateData);
                     this.showToast('Guest updated successfully!');
                 }
             },
-            
+
             // --- UTILITY METHODS ---
             updatePropertyDropdown() {
                 const selects = document.querySelectorAll('select[name="propertyId"]');
@@ -697,7 +720,7 @@
                     select.value = currentValue;
                 });
             },
-            
+
             getAvailableRoomOptions() {
                 return this.data.properties.map(property => {
                     const rooms = this.data.rooms.filter(r => {
@@ -718,14 +741,14 @@
             getAssignmentDetails() {
                 return this.data.assignments.map(assignment => {
                     return {
-                        assignment, 
-                        guest: this.data.guests.find(g => g.id === assignment.guestId), 
-                        room: this.data.rooms.find(r => r.id === assignment.roomId), 
+                        assignment,
+                        guest: this.data.guests.find(g => g.id === assignment.guestId),
+                        room: this.data.rooms.find(r => r.id === assignment.roomId),
                         property: this.data.properties.find(p => p.id === assignment.propertyId)
                     };
                 }).filter(details => details.guest && details.room && details.property); // Filter out incomplete assignments
             },
-            
+
             showToast(message, type = 'success') {
                 const toast = document.getElementById('success-toast');
                 toast.querySelector('#toast-message').textContent = message;
@@ -733,15 +756,15 @@
                 toast.classList.remove('hidden');
                 setTimeout(() => toast.classList.add('hidden'), 3000);
             },
-            
+
             hideDeleteModal() {
                 document.getElementById('delete-modal').classList.add('hidden');
             },
-            
+
             showDeleteModal(type, id) {
                 const modal = document.getElementById('delete-modal');
                 const confirmBtn = document.getElementById('modal-confirm-delete');
-                
+
                 const newConfirmBtn = confirmBtn.cloneNode(true); // To remove old event listeners
                 confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
 
@@ -751,7 +774,7 @@
                     else if (type === 'guest') this.deleteGuest(id);
                     this.hideDeleteModal();
                 });
-                
+
                 modal.classList.remove('hidden');
             },
         };
