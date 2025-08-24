@@ -228,7 +228,7 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, deleteDoc, doc, onSnapshot, updateDoc, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // This is your original Firebase Configuration
+        // Firebase Configuration - Replace with your project's configuration
         const firebaseConfig = {
             apiKey: "AIzaSyB_0fHWf0Hrpjcv4Hn0QY4L4JDMpc9RFVc",
             authDomain: "home-guests.firebaseapp.com",
@@ -242,7 +242,7 @@
             db: null,
             auth: null,
             userId: null,
-            appId: 'home-guests', // Your original appId
+            appId: 'home-guests',
             
             data: {
                 properties: [],
@@ -295,13 +295,11 @@
                 let loadedCollections = 0;
 
                 collectionsToSync.forEach(collectionName => {
-                    // This uses your original, correct database path structure
                     const collectionRef = collection(this.db, `artifacts/${this.appId}/public/data/${collectionName}`);
-
                     onSnapshot(collectionRef, (snapshot) => {
                         this.data[collectionName] = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                         
-                        // This new logic waits for ALL data to load before hiding the loading screen
+                        // Wait for all initial data to load before rendering
                         if(loadedCollections < collectionsToSync.length) {
                             loadedCollections++;
                             if (loadedCollections === collectionsToSync.length) {
@@ -309,12 +307,11 @@
                                 this.showSection('overview');
                             }
                         } else {
+                            // Re-render on subsequent updates
                             this.renderAll();
                         }
                     }, (error) => {
                         console.error(`Error listening to ${collectionName}:`, error);
-                        // If there's an error connecting (e.g., bad config or permissions), show an error
-                        this.showInitError(`Could not load data for "${collectionName}". Check Firebase rules or configuration.`);
                     });
                 });
             },
@@ -726,7 +723,7 @@
                         room: this.data.rooms.find(r => r.id === assignment.roomId), 
                         property: this.data.properties.find(p => p.id === assignment.propertyId)
                     };
-                }).filter(details => details.guest && details.room && details.property);
+                }).filter(details => details.guest && details.room && details.property); // Filter out incomplete assignments
             },
             
             showToast(message, type = 'success') {
@@ -734,4 +731,33 @@
                 toast.querySelector('#toast-message').textContent = message;
                 toast.className = `fixed top-4 right-4 px-6 py-3 rounded-lg shadow-lg z-40 animate-slide-up ${type === 'success' ? 'bg-green-500 text-white' : 'bg-red-500 text-white'}`;
                 toast.classList.remove('hidden');
-                setTimeout(() => toast.classList.
+                setTimeout(() => toast.classList.add('hidden'), 3000);
+            },
+            
+            hideDeleteModal() {
+                document.getElementById('delete-modal').classList.add('hidden');
+            },
+            
+            showDeleteModal(type, id) {
+                const modal = document.getElementById('delete-modal');
+                const confirmBtn = document.getElementById('modal-confirm-delete');
+                
+                const newConfirmBtn = confirmBtn.cloneNode(true); // To remove old event listeners
+                confirmBtn.parentNode.replaceChild(newConfirmBtn, confirmBtn);
+
+                newConfirmBtn.addEventListener('click', () => {
+                    if (type === 'property') this.deleteProperty(id);
+                    else if (type === 'room') this.deleteRoom(id);
+                    else if (type === 'guest') this.deleteGuest(id);
+                    this.hideDeleteModal();
+                });
+                
+                modal.classList.remove('hidden');
+            },
+        };
+
+        window.app = app;
+        document.addEventListener('DOMContentLoaded', () => app.init());
+    </script>
+</body>
+</html>
